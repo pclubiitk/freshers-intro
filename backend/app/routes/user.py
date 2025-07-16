@@ -31,7 +31,7 @@ async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
     try:
         await send_verification_email(user.email, verification_token)
-        models.User.last_verification_sent = datetime.utcnow()
+        new_user.last_verification_sent = datetime.utcnow()
         db.commit()
     except Exception as e:
         print(e)
