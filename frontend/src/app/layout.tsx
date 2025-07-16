@@ -39,7 +39,7 @@ export default function RootLayout({
               {
                 classNames: {
                   error: '!bg-red-100 !text-red-600',
-                  success: '!bg-white'
+                  success: '!bg-white dark:!bg-black'
                 }
               }
             }/>

@@ -68,7 +68,7 @@ if (res.status === 403) {
       <div className="w-full flex justify-end">
         <Button
           variant="outline"
-          className=""
+          className="dark:hover:text-black"
           onClick={async () => {
             toast.promise(
               fetch(`${process.env.NEXT_PUBLIC_BACKEND_ORIGIN}/auth/resend-verification`, {
