@@ -1,20 +1,21 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from app import models, schemas, auth
+from app.models import User
 from app.database import get_db
 from app.utils.email import send_verification_email
 from jose import JWTError, jwt
-from datetime import timedelta
+from datetime import datetime, timedelta
 import os
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post("/signup", response_model=schemas.UserOut)
-async def signup(user: schemas.UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+@router.post("/signup")
+async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     existing = db.query(models.User).filter(models.User.email == str.lower(user.email)).first()
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="User already registered")
 
     hashed = auth.get_password_hash(user.password)
     new_user = models.User(username=user.username, email=str.lower(user.email), hashed_password=hashed)
@@ -28,9 +29,15 @@ async def signup(user: schemas.UserCreate, background_tasks: BackgroundTasks, db
         expires_delta=timedelta(hours=1)
     )
 
-    background_tasks.add_task(send_verification_email, user.email, verification_token)
+    try:
+        await send_verification_email(user.email, verification_token)
+        models.User.last_verification_sent = datetime.utcnow()
+        db.commit()
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Failed to send verification mail. Login to try again.")
 
-    return new_user
+    return {"message": "Signup was successful."}
 
 @router.get("/verify-email")
 def verify_email(token: str, db: Session = Depends(get_db)):
@@ -55,16 +62,16 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(form: schemas.UserCreate, response: Response, db: Session = Depends(get_db)):
+def login(form: schemas.UserLogin, response: Response, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == form.email).first()
     if not user or not auth.verify_password(form.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     if not user.is_verified:
-        raise HTTPException(status_code=403, detail="Verify your email first")
+        raise HTTPException(status_code=403, detail="Email not verified")
 
     token = auth.create_access_token(data={"sub": user.email})
-
+    print(token)
     # Set cookie with JWT token
     response.set_cookie(
         key="access_token",
@@ -76,3 +83,23 @@ def login(form: schemas.UserCreate, response: Response, db: Session = Depends(ge
     )
 
     return {"message": "Login successful"}
+
+@router.post("/resend-verification")
+async def resend_mail (request: Request, db: Session = Depends(get_db), user: User = Depends(auth.get_current_user)):
+    if (user.is_verified):
+        raise HTTPException(status_code=400, detail="Email already verified.")
+    if user.last_verification_sent and datetime.utcnow() - user.last_verification_sent < timedelta(minutes=1):
+        raise HTTPException(status_code=429, detail="Please wait before resending.")
+
+    token = auth.create_access_token(
+        data={"sub": user.email},
+        expires_delta=timedelta(minutes=10)
+    )
+    try:
+        await send_verification_email(user.email, token)
+        user.last_verification_sent = datetime.utcnow()
+        db.commit()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to send email. Try again later.")
+
+    return {"detail": "Verification email resent successfully."}
