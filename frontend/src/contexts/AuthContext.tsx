@@ -4,8 +4,9 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 
 interface AuthContextType {
     user: any;
-    loading: boolean;
+    loading_or_not: boolean;
     isAuthenticated: boolean;
+    refreshUser: () => Promise<void>;
 }
 
 
@@ -16,32 +17,38 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+    const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true); // important to avoid flash
+    const [loading_or_not, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+    const refreshUser = async () => {
+    try {
+      const res = await fetch(`${ORIGIN}/auth/me`, {
+        credentials: "include",
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error("Not authenticated");
+      const data = await res.json();
+      setUser(data);
+      setIsAuthenticated(true);
+    } catch {
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
     useEffect(() => {
-        fetch("http://localhost:8000/auth/me", {
-        credentials: "include"
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("Not authenticated");
-            return res.json();
-        })
-        .then(data => {
-            setUser(data);
-            setIsAuthenticated(true);
-        })
-        .catch(() => {
-            setUser(null);
-            setIsAuthenticated(false);
-        })
-        .finally(() => setLoading(false));
+        refreshUser();
     }, []);
 
 
     return (
-        <AuthContext.Provider value={{ user, loading, isAuthenticated }}>
+        <AuthContext.Provider value={{ user, loading_or_not, isAuthenticated, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );

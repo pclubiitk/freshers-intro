@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, loading_or_not, isAuthenticated, refreshUser } = useAuth(); 
   const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
   const [email, setEmail] = useState("");
@@ -15,6 +18,17 @@ export default function LoginPage() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+      if (!loading_or_not && isAuthenticated) {
+        router.replace('/my-profile');
+      }
+    }, [loading_or_not, isAuthenticated]);
+  
+    if (loading_or_not) return <div>loading...</div>;
+  
+  
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,11 +63,12 @@ export default function LoginPage() {
         return
       }
 if (res.status === 403) {
-  toast.error("Email not verified.", {
+  toast.error("Email not verified", {
     action: (
       <div className="w-full flex justify-end">
         <Button
           variant="outline"
+          className=""
           onClick={async () => {
             toast.promise(
               fetch(`${process.env.NEXT_PUBLIC_BACKEND_ORIGIN}/auth/resend-verification`, {
@@ -98,9 +113,8 @@ if (res.status === 403) {
         return;
       }
       else {toast.info(data.message)};
-
-      // If backend sets cookie, you don't need to store anything here.
-      router.push("/dashboard");
+      await refreshUser();
+      router.replace("/my-profile");
     } catch (err) {
       console.error(err);
       setError("Server error. Please try again later.");
@@ -138,7 +152,7 @@ if (res.status === 403) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-lg bg-white/80 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-400 focus:outline-none text-gray-800 dark:text-white"
-              placeholder="yourname@iitk.ac.in"
+              placeholder="cc_username@iitk.ac.in"
             />
           </div>
         </div>
@@ -171,9 +185,9 @@ if (res.status === 403) {
 
         <p className="text-center text-sm text-gray-600 dark:text-gray-400">
           Don&apos;t have an account?{" "}
-          <a href="/signup" className="text-blue-600 hover:underline font-medium">
+          <Link href="/signup" className="text-blue-600 hover:underline font-medium">
             Sign up
-          </a>
+          </Link>
         </p>
       </form>
     </main>
