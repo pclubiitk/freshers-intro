@@ -48,13 +48,39 @@ export default function LoginPage() {
         })
         return
       }
+if (res.status === 403) {
+  toast.error("Email not verified.", {
+    action: (
+      <div className="w-full flex justify-end">
+        <Button
+          variant="outline"
+          onClick={async () => {
+            toast.promise(
+              fetch(`${process.env.NEXT_PUBLIC_BACKEND_ORIGIN}/auth/resend-verification`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
 
-      if (res.status == 403) {
-        toast.error("Email not verified.", {
-          action: <div className="w-full flex justify-end"><Button variant="outline" onClick={() => console.log("verification mail resent")}>Resend Mail</Button></div>
-        })
-        return
-      }
+              }).then((res) => {
+                if (!res.ok) throw new Error("Failed to resend verification email.");
+                return res.json();
+              }),
+              {
+                loading: "Sending verification email...",
+                success: "Verification email resent!",
+                error: (err) => err.message || "Failed to resend email",
+              }
+            );
+          }}
+        >
+          Resend Mail
+        </Button>
+      </div>
+    ),
+  });
+  return;
+}
+
 
       const data = await res.json();
       if (!res.ok) {

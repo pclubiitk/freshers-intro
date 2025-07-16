@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import Response
+from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from app import models, schemas, auth
 from app.models import User
@@ -8,7 +9,8 @@ from app.utils.email import send_verification_email
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import os
-
+import pytz
+ist = pytz.timezone('Asia/Kolkata')
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/signup")
@@ -31,7 +33,8 @@ async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
     try:
         await send_verification_email(user.email, verification_token)
-        new_user.last_verification_sent = datetime.utcnow()
+        new_user.last_verification_sent = datetime.now(ist)
+
         db.commit()
     except Exception as e:
         print(e)
@@ -84,20 +87,36 @@ def login(form: schemas.UserLogin, response: Response, db: Session = Depends(get
 
     return {"message": "Login successful"}
 
-@router.post("/resend-verification")
-async def resend_mail (request: Request, db: Session = Depends(get_db), user: User = Depends(auth.get_current_user)):
-    if (user.is_verified):
-        raise HTTPException(status_code=400, detail="Email already verified.")
-    if user.last_verification_sent and datetime.utcnow() - user.last_verification_sent < timedelta(minutes=1):
-        raise HTTPException(status_code=429, detail="Please wait before resending.")
 
+class ResendRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+@router.post("/resend-verification")
+async def resend_mail (payload: ResendRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == payload.email).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    if not auth.verify_password(payload.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid credentials.")
+
+    if user.is_verified:
+        raise HTTPException(status_code=400, detail="Email already verified.")
+
+
+    now = datetime.now()
+    
+    if user.last_verification_sent and (now - user.last_verification_sent) < timedelta(minutes=1):
+        raise HTTPException(status_code=429, detail="Wait before resending.")
     token = auth.create_access_token(
         data={"sub": user.email},
         expires_delta=timedelta(minutes=10)
     )
     try:
         await send_verification_email(user.email, token)
-        user.last_verification_sent = datetime.utcnow()
+        user.last_verification_sent = datetime.now(ist)
         db.commit()
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to send email. Try again later.")
