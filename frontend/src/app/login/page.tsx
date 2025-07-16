@@ -61,9 +61,18 @@ if (res.status === 403) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
 
-              }).then((res) => {
-                if (!res.ok) throw new Error("Failed to resend verification email.");
-                return res.json();
+              }).then(async(res) => {
+                const data = await res.json()
+
+                if (res.status === 429) {
+                  throw new Error(data.detail || "Wait before requesting another mail.");
+                }
+                if (!res.ok) {
+                  throw new Error(data.detail || "Failed to resend verification remail.");
+                }
+
+                return data;
+
               }),
               {
                 loading: "Sending verification email...",

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Integer, String, Boolean
+from sqlalchemy import Column, DateTime, Integer, String, Boolean, func
 from .database import Base
 
 class User(Base):
@@ -7,5 +7,5 @@ class User(Base):
     username = Column(String, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
-    is_verified = Column(Boolean, default=False)
-    last_verification_sent = Column(DateTime, default=None, nullable=True)
+    is_verified = Column(Boolean, default=  False)
+    last_verification_sent = Column(DateTime(timezone=True), nullable=True, default=func.now())

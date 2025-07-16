@@ -7,12 +7,12 @@ from app.models import User
 from app.database import get_db
 from app.utils.email import send_verification_email
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import pytz
 ist = pytz.timezone('Asia/Kolkata')
 router = APIRouter(prefix="/auth", tags=["Auth"])
-
+RESEND_COOLDOWN = os.getenv("RESEND_COOLDOWN")
 @router.post("/signup")
 async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     existing = db.query(models.User).filter(models.User.email == str.lower(user.email)).first()
@@ -106,10 +106,18 @@ async def resend_mail (payload: ResendRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already verified.")
 
 
-    now = datetime.now()
+    last_sent = user.last_verification_sent
+    if last_sent.tzinfo is None:
+        last_sent = last_sent.replace(tzinfo=timezone.utc)
+    now = datetime.now(timezone.utc)
+    COOLDOWN = timedelta(minutes=int(RESEND_COOLDOWN))
+    elapsed = now - last_sent
+    remaining = COOLDOWN - elapsed
+    if remaining.total_seconds() > 0:
+        minutes_left = int(remaining.total_seconds() // 60) + 1
+        raise HTTPException(status_code=429, detail=f"Wait {minutes_left} minute(s) before requesting another mail.")
     
-    if user.last_verification_sent and (now - user.last_verification_sent) < timedelta(minutes=1):
-        raise HTTPException(status_code=429, detail="Wait before resending.")
+
     token = auth.create_access_token(
         data={"sub": user.email},
         expires_delta=timedelta(minutes=10)
