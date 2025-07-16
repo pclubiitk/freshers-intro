@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Lock } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
-  const ORIGIN = process.env.NEXT_BACKEND_ORIGIN;
+  const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,6 +20,13 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
+    if (!email.endsWith("@iitk.ac.in")){
+      toast.error("Only IITK email address is allowed.", {
+        id: 422
+      })
+      return
+    }
+
     try {
       setLoading(true);
       const res = await fetch(ORIGIN + "/auth/login", {
@@ -25,19 +34,41 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+      if (res.status === 422) {
+        toast.error("Please recheck your login details.", {
+          id: 422
+        })
+        return
+      }
+
+      if (res.status === 401) {
+        toast.error("Invalid login credentials.", {
+          id: 401
+        })
+        return
+      }
+
+      if (res.status == 403) {
+        toast.error("Email not verified.", {
+          action: <div className="w-full flex justify-end"><Button variant="outline" onClick={() => console.log("verification mail resent")}>Resend Mail</Button></div>
+        })
+        return
+      }
 
       const data = await res.json();
-
       if (!res.ok) {
-        setError(data.detail || "Login failed.");
+        // setError(data.detail || "Login failed.");
+        toast.error(data.detail || "Login failed.");
         return;
       }
+      else {toast.info(data.message)};
 
       // If backend sets cookie, you don't need to store anything here.
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
       setError("Server error. Please try again later.");
+      toast.error("Server error. Please try again later.");
     } finally {
       setLoading(false);
     }

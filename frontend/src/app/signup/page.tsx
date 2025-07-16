@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, User } from "lucide-react"; // optional icons
+import { toast } from "sonner";
 
 
 export default function SignupPage() {
   const router = useRouter();
-  const ORIGIN = process.env.NEXT_BACKEND_ORIGIN;
+  const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,15 +18,17 @@ export default function SignupPage() {
 
   const isIITKEmail = (email: string) => email.endsWith("@iitk.ac.in");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  setError("");
 
-    if (!isIITKEmail(email)) {
-      setError("Only @iitk.ac.in emails are allowed.");
-      return;
-    }
+  if (!isIITKEmail(email)) {
+    // setError("Only IITK emails are allowed.");
+    toast.error("Only IITK emails are allowed.")
+    return;
+  }
 
+  const signupPromise = new Promise<void>(async (resolve, reject) => {
     try {
       setLoading(true);
       const res = await fetch(ORIGIN + "/auth/signup", {
@@ -37,18 +40,28 @@ export default function SignupPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.detail || "Signup failed.");
+        reject(new Error(data.detail || "Signup failed."));
         return;
       }
 
-      router.push(`/check-email?email=${encodeURIComponent(email)}`);
+      resolve();
+      router.push(`/login`);
     } catch (err) {
-      console.error(err);
-      setError("Server error. Please try again later.");
+      setError("Server error. Please try again later");
+      reject(new Error("Server error. Please try again later."));
     } finally {
       setLoading(false);
     }
-  };
+  });
+
+  toast.promise(signupPromise, {
+    loading: "Creating account...",
+    success: "Verification email sent!",
+    error: (err: Error) => err.message || "Signup failed.",
+  });
+};
+
+
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white dark:from-[#0f172a] dark:to-[#1e293b] transition">
