@@ -1,5 +1,6 @@
 from datetime import date
 from pydantic import BaseModel, EmailStr, validator
+from typing import List, Optional, Dict
 
 class UserCreate(BaseModel):
     username: str
@@ -37,3 +38,33 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
+
+
+class UserProfileCreate(BaseModel):
+    bio: Optional[str]
+    branch: Optional[str]
+    batch: Optional[str]
+    hostel: Optional[str]
+    hobbies: Optional[List[str]]
+    interests: Optional[List[str]]
+    image_keys: Optional[List[str]] = []
+
+class UserImageOut(BaseModel):
+    id: int
+    image_url: str
+
+    class Config:
+        orm_mode = True
+
+class UserProfileOut(BaseModel):
+    id: int
+    bio: Optional[str]
+    branch: Optional[str]
+    batch: Optional[str]
+    hostel: Optional[str]
+    hobbies: Optional[List[str]]
+    interests: Optional[List[str]]
+    images: List[UserImageOut]
+
+    class Config:
+        orm_mode = True
