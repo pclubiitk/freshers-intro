@@ -3,9 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { Toaster } from "../components/ui/sonner";
-import Navbar from "@/components/navbar"; // ⬅️ import this
-
+import { Toaster } from "./../components/ui/sonner"
+import Navbar from "@/components/Navbar";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -33,9 +32,17 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AuthProvider>
-            <Navbar /> {/* ⬅️ insert navbar here */}
-            <main>{children}</main>
-            <Toaster richColors />
+            <Navbar />
+            <main>
+              {children}</main>
+            <Toaster richColors toastOptions={
+              {
+                classNames: {
+                  error: '!bg-red-100 !text-red-600',
+                  success: '!bg-white dark:!bg-black'
+                }
+              }
+            }/>
           </AuthProvider>
         </ThemeProvider>
       </body>

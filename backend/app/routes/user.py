@@ -130,3 +130,21 @@ async def resend_mail (payload: ResendRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Failed to send email. Try again later.")
 
     return {"detail": "Verification email resent successfully."}
+
+
+@router.get("/me")
+def get_me(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    user = auth.get_current_user(request, db)
+    return {
+        "email": user.email,
+        "username": user.username,
+        "is_verified": user.is_verified
+    }
+
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    return {"message": "Logged out"}

@@ -1,20 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, loading_or_not, isAuthenticated, refreshUser } = useAuth(); 
   const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+      if (!loading_or_not && isAuthenticated) {
+        router.replace('/my-profile');
+      }
+    }, [loading_or_not, isAuthenticated]);
+  
+    if (loading_or_not) return <div>loading...</div>;
+  
+  
+
   const { theme } = useTheme();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,9 +102,9 @@ export default function LoginPage() {
         toast.error(data.detail || 'Login failed.');
         return;
       }
-
-      toast.success(data.message || 'Login successful!');
-      router.push('/dashboard');
+      else {toast.info(data.message)};
+      await refreshUser();
+      router.replace("/my-profile");
     } catch (err) {
       console.error(err);
       toast.error('Server error. Please try again later.');
@@ -128,7 +142,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              placeholder="yourname@iitk.ac.in"
+              placeholder="cc_username@iitk.ac.in"
             />
           </div>
         </div>
@@ -161,12 +175,11 @@ export default function LoginPage() {
           {loading ? 'Logging in...' : 'Login'}
         </button>
 
-       
-        <p className="text-center text-sm text-gray-700 dark:text-gray-400">
-          Don&apos;t have an account?{' '}
-          <a href="/signup" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="text-blue-600 hover:underline font-medium">
             Sign up
-          </a>
+          </Link>
         </p>
       </form>
     </main>

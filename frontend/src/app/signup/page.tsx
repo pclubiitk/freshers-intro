@@ -1,11 +1,15 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, User } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
+import { Mail, Lock, User } from "lucide-react"; // optional icons
 import { toast } from "sonner";
+import Link from "next/link";
+
 
 export default function SignupPage() {
+  const { user, loading_or_not, isAuthenticated } = useAuth();
   const router = useRouter();
   const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
@@ -15,6 +19,15 @@ export default function SignupPage() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+    useEffect(() => {
+      if (!loading_or_not && isAuthenticated) {
+        router.replace('/my-profile');
+      }
+    }, [loading_or_not, isAuthenticated]);
+  
+    if (loading_or_not) return <div>loading...</div>;
+  
+  
 
   const isIITKEmail = (email: string) => email.endsWith("@iitk.ac.in");
 
@@ -107,7 +120,7 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-              placeholder="yourname@iitk.ac.in"
+              placeholder="cc_userrname@iitk.ac.in"
             />
           </div>
         </div>
@@ -143,9 +156,9 @@ export default function SignupPage() {
    
         <p className="text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-500 hover:underline font-medium">
+          <Link href="/login" className="text-blue-600 hover:underline font-medium">
             Log in
-          </a>
+          </Link>
         </p>
       </form>
     </main>
