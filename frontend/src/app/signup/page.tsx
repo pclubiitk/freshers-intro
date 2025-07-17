@@ -9,7 +9,7 @@ import Link from "next/link";
 
 
 export default function SignupPage() {
-  const { user, loading_or_not, isAuthenticated } = useAuth();
+  const { loading_or_not, isAuthenticated } = useAuth();
   const router = useRouter();
   const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [name, setName] = useState("");
