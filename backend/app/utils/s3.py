@@ -32,13 +32,12 @@ def generate_presigned_post(key: str, expires_in: int = 3600):
         response = s3_client.generate_presigned_post(
             Bucket=S3_BUCKET,
             Key=key,
-            Fields={"acl": "public-read"},  # Optional: for public files
             Conditions=[
-                {"acl": "public-read"},
                 ["content-length-range", 0, 10 * 1024 * 1024],  # Max 10MB
             ],
             ExpiresIn=expires_in
         )
+
         return response
     except ClientError as e:
         raise Exception(f"Error generating presigned URL: {e}")

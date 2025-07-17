@@ -9,7 +9,7 @@ from app.utils.s3 import delete_s3_object, generate_presigned_post
 
 router = APIRouter()
 
-@router.post("/create-or-update-profile", response_model=UserProfileOut)
+@router.post("/create-or-update-profile")
 def create_or_update_profile(
     profile_data: UserProfileCreate,
     db: Session = Depends(get_db),
@@ -36,10 +36,10 @@ def create_or_update_profile(
 
         # Add new images
         for key in profile_data.image_keys:
-            image_url = f"https://{os.getenv('AWS_S3_BUCKET')}.s3.amazonaws.com/{key}"
+            image_url = f"https://{os.getenv('AWS_S3_BUCKET')}.s3.{os.getenv('AWS_REGION')}.amazonaws.com/{key}"
             db.add(UserImage(user_id=user.id, image_key=key, image_url=image_url))
 
     db.commit()
     db.refresh(profile)
-    return profile
+    return {"message":"Profile saved successfully"}
 

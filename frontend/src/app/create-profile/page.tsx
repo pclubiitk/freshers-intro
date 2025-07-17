@@ -44,7 +44,7 @@ export default function ProfileFormPage() {
         for (const file of imageFiles) {
             try {
                 const presignRes = await fetch(`${BACKEND_ORIGIN}/s3/presign?filename=${file.name}`, {
-                credentials: 'include',
+                    credentials: 'include',
                 });
                 const { upload_url, fields, key } = await presignRes.json();
 
@@ -53,8 +53,8 @@ export default function ProfileFormPage() {
                 formData.append('file', file);
 
                 const upload = await fetch(upload_url, {
-                method: 'POST',
-                body: formData,
+                    method: 'POST',
+                    body: formData,
                 });
 
                 if (!upload.ok) throw new Error(`Upload failed for ${file.name}`);
@@ -105,6 +105,7 @@ export default function ProfileFormPage() {
     };
 
     return (
+        <>
         <div className="max-w-2xl mx-auto p-6 space-y-6">
         <h1 className="text-3xl font-bold text-center">Complete Your Profile</h1>
         <Card>
@@ -177,5 +178,6 @@ export default function ProfileFormPage() {
             </CardContent>
         </Card>
         </div>
+        </>
     );
 }

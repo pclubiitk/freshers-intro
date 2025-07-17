@@ -19,6 +19,6 @@ app.add_middleware(
 )
 
 # Register all route modules
-app.include_router(user.router, prefix="/auth", tags=["Auth"])
+app.include_router(user.router, tags=["Auth"])
 app.include_router(profiles.router, prefix="/profile", tags=["Profile"])
 app.include_router(s3.router, prefix="/s3", tags=["S3 Uploads"])

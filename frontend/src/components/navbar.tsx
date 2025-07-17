@@ -29,7 +29,7 @@ export default function Navbar() {
 
 
   return (
-    <nav className="w-full px-6 py-3 flex justify-between items-center border-b border-gray-200 dark:border-white/10 bg-white/60 dark:bg-black/40 backdrop-blur-md shadow-sm fixed top-0 z-50">
+    <nav className="w-full px-6 py-3 flex justify-between items-center border-b border-gray-200 dark:border-white/10 bg-white/60 dark:bg-black/40 backdrop-blur-md shadow-sm sticky top-0 z-50">
       <Link href="/" className="text-xl font-semibold text-gray-800 dark:text-white">
         Freshers Intro
       </Link>
