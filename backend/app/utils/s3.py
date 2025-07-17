@@ -32,8 +32,14 @@ def generate_presigned_post(key: str, expires_in: int = 3600):
         response = s3_client.generate_presigned_post(
             Bucket=S3_BUCKET,
             Key=key,
+            Fields={
+                "Content-Type": "image/jpeg",  # or "image/png" depending on file
+                "Content-Disposition": "inline"  # optional, forces view not download
+            },
             Conditions=[
-                ["content-length-range", 0, 10 * 1024 * 1024],  # Max 10MB
+                ["content-length-range", 0, 10 * 1024 * 1024],
+                {"Content-Type": "image/jpeg"},
+                {"Content-Disposition": "inline"}
             ],
             ExpiresIn=expires_in
         )
