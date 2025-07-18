@@ -37,7 +37,6 @@ async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
         db.commit()
     except Exception as e:
-        print(e)
         raise HTTPException(status_code=500, detail="Failed to send verification mail. Login to try again.")
 
     return {"message": "Signup was successful."}
@@ -74,7 +73,6 @@ def login(form: schemas.UserLogin, response: Response, db: Session = Depends(get
         raise HTTPException(status_code=403, detail="Email not verified")
 
     token = auth.create_access_token(data={"sub": user.email})
-    print(token)
     # Set cookie with JWT token
     response.set_cookie(
         key="access_token",
