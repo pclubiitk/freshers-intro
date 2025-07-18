@@ -29,7 +29,6 @@ export default function LoginPage() {
   
   
 
-  const { theme } = useTheme();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

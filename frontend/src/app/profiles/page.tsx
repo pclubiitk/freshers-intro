@@ -164,7 +164,7 @@ const UserGallery = () => {
                         alt={`User ${index} Photo ${i}`}
                         className="w-full h-full object-cover"
                         onError={(e) =>
-                          ((e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x300?text=No+Image')
+                          ((e.target as HTMLImageElement).src = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png')
                         }
                       />
                     </SwiperSlide>

@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 export default function ProfilePage() {
   const { user, loading_or_not, isAuthenticated } = useAuth();
@@ -10,6 +11,9 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!loading_or_not && !isAuthenticated) {
+      toast.error("Please login first.", {
+        id: 401
+      });
       router.replace('/login');
     }
   }, [loading_or_not, isAuthenticated]);

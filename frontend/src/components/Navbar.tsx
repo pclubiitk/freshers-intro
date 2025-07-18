@@ -4,58 +4,43 @@ import { useState, useEffect } from 'react';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import ThemeToggle from './ThemeToggle';
+import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 const Navbar = () => {
+  const { theme } = useTheme();
+  const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loadingAuth, setLoadingAuth] = useState(true);
 
-  // Authentication check
-  useEffect(() => {
-    const checkAuth = async () => {
+  const { user, isAuthenticated, refreshUser, loading_or_not } = useAuth();
+  
+  
+      const handleLogout = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_ORIGIN}/auth/check`, {
-          credentials: 'include'
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_ORIGIN}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include',
         });
-        
-        if (response.ok) {
-          setIsLoggedIn(true);
-        } else {
-          setIsLoggedIn(false);
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        setIsLoggedIn(false);
-      } finally {
-        setLoadingAuth(false);
+  
+        await refreshUser();
+        router.replace('/login');
+      } catch (err) {
+        console.error("Logout failed", err);
       }
     };
-
-    checkAuth();
-  }, []);
 
   const navItems = [
     { label: 'Home', href: '/' },
     { label: 'Profiles', href: '/profiles' },
-    { label: 'My Profile', href: '/profile' },
-    ...(isLoggedIn ? [{ label: 'Logout', href: '/logout' }] : [])
+    ...(isAuthenticated ? [
+    { label: `${user.username}`, href: '/my-profile' }, { label: 'Logout', action: handleLogout }] : [{label: 'Login', href: '/login'}])
   ];
 
-  const handleLogout = async () => {
-    try {
-      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_ORIGIN}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      setIsLoggedIn(false);
-      // we will redirect to home page
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
 
-  if (loadingAuth) {
+  if (loading_or_not) {
     return (
       <nav className="sticky top-0 z-50 w-full px-6 py-4 flex items-center justify-between border-b border-gray-800 bg-zinc-950 text-white">
         <div className="flex items-center gap-3 text-2xl font-bold">
@@ -66,9 +51,14 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full px-6 py-4 flex items-center justify-between border-b border-gray-800 bg-zinc-950 text-white transition-colors duration-300">
-      {/* ... rest of your navbar code ... */}
-       <div className="flex items-center gap-3 text-2xl font-bold">
+    <nav
+  className={`sticky top-0 z-50 w-full px-6 py-4 flex items-center justify-between border-b ${
+    theme === 'dark'
+      ? 'bg-zinc-950 border-gray-800 text-white'
+      : 'bg-white border-gray-300 text-black'
+  } transition-colors duration-300`}
+>
+<div className="flex items-center gap-3 text-2xl font-bold">
         <Link href="https://pclub.in/">
           <img
             src="/images/pclublogo.png"
@@ -76,37 +66,47 @@ const Navbar = () => {
             className="w-8 h-8 object-contain"
           />
         </Link>
-        <span className="hidden md:inline">Programming Club IIT Kanpur</span>
+        <span className="text-sm md:inline md:text-xl">Programming Club IIT Kanpur</span>
       </div>
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center gap-6">
-        <ul className="flex gap-6 text-lg font-medium">
-          {navItems.map((item) => (
-            <li key={item.label}>
+      <ul className="flex gap-6 text-lg font-medium">
+      {navItems.map((item) => {
+        const isActive = item.href && pathname === item.href;
+
+        return (
+          <li key={item.label}>
+            {item.href ? (
               <Link
                 href={item.href}
-                className="hover:text-indigo-500 transition-colors duration-200 no-underline text-white"
+                className={`transition-colors duration-200 no-underline ${
+                  isActive ? 'text-indigo-500' : 'hover:text-indigo-900'
+                }`}
               >
                 {item.label}
               </Link>
-            </li>
-          ))}
-        </ul>
+            ) : (
+              <button
+                onClick={item.action}
+                className="hover:text-red-600 transition-colors duration-200 text-black dark:text-white bg-transparent border-none cursor-pointer font-medium text-lg"
+              >
+                {item.label}
+              </button>
+            )}
+          </li>
+        );
+      })}
+    </ul>
 
-        {/* Theme Toggle Button */}
-        <button
-          onClick={toggleTheme}
-          className="ml-4 p-2 rounded-full hover:bg-gray-700 transition-colors text-white"
-          aria-label="Toggle Theme"
-        >
-          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
+
+
+        <ThemeToggle />
       </div>
 
       {/* Mobile Menu Toggle */}
       <button
-        className="md:hidden text-white"
+        className="md:hidden text-black dark:text-white"
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label="Toggle Menu"
       >
@@ -115,28 +115,42 @@ const Navbar = () => {
 
       {/* Mobile Menu Dropdown */}
       {mobileOpen && (
-        <ul className="absolute top-16 left-0 w-full bg-zinc-950 text-white flex flex-col items-center gap-4 py-4 border-t border-gray-700 md:hidden z-50 transition-colors">
-          {navItems.map((item) => (
-            <li key={item.label}>
-              <Link
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className="text-lg font-medium hover:text-indigo-500 transition-colors no-underline text-white"
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
-          <li>
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-gray-700 transition-colors text-white"
-              aria-label="Toggle Theme"
-            >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          </li>
-        </ul>
+        <ul className="absolute top-16 left-0 w-full bg-zinc-950 flex flex-col items-center gap-4 py-4 border-t border-gray-700 md:hidden z-50 transition-colors">
+  {navItems.map((item) => {
+    const isActive = item.href && pathname === item.href;
+
+    return (
+      <li key={item.label}>
+        {item.href ? (
+          <Link
+            href={item.href}
+            onClick={() => setMobileOpen(false)}
+            className={`text-lg font-medium transition-colors no-underline ${
+              isActive ? 'text-indigo-500' : 'hover:text-indigo-400'
+            }`}
+          >
+            {item.label}
+          </Link>
+        ) : (
+          <button
+            onClick={() => {
+              setMobileOpen(false);
+              item.action?.();
+            }}
+            className="text-lg font-medium hover:text-indigo-400 transition-colors text-white bg-transparent border-none cursor-pointer"
+          >
+            {item.label}
+          </button>
+        )}
+      </li>
+    );
+  })}
+
+  <li>
+    <ThemeToggle />
+  </li>
+</ul>
+
       )}
     </nav>
   );
