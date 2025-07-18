@@ -202,3 +202,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+.swiper-button-next,
+.swiper-button-prev {
+  scale:0.75;
+}

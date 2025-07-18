@@ -3,35 +3,57 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-const publicAuthRoutes = ['/login', '/signup'];
+
+const PUBLIC_ROUTES = ['/login', '/signup'];
+const PROTECTED_ROUTES = ['/dashboard', '/my-profile', '/Browse-Profiles', '/team'];
+
 export async function middleware(req: NextRequest) {
-    const token = req.cookies.get('access_token')?.value;
-    const { pathname } = req.nextUrl;
-    const isPublicAuthRoute = publicAuthRoutes.includes(pathname);
-    const isProtectedRoute = ['/dashboard', '/my-profile', '/settings', '/team'].some((route) =>
-    pathname.startsWith(route)
-    );
-    if (!token) {
-        return NextResponse.redirect(new URL('/login', req.url));
-    }
+  const { pathname } = req.nextUrl;
+  const token = req.cookies.get('access_token')?.value;
 
-    if (isPublicAuthRoute && token) {
-    return NextResponse.redirect(new URL('/my-profile', req.url));
-    }
-    if (isProtectedRoute && !token) {
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+  const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
+
+  // 🔒 If route is protected but no token, redirect to login
+  if (isProtectedRoute && !token) {
     return NextResponse.redirect(new URL('/login', req.url));
-    }
+  }
 
-
+  // 👤 If route is public and token exists, redirect to dashboard
+  if (isPublicRoute && token) {
     try {
-        await jwtVerify(token, secret);
-        return NextResponse.next();
+      await jwtVerify(token, secret); // verify token
+      return NextResponse.redirect(new URL('/my-profile', req.url));
     } catch (err) {
-        console.error("Invalid token:", err);
-        return NextResponse.redirect(new URL('/login', req.url));
+      console.error("Invalid token, redirecting to login");
+      return NextResponse.redirect(new URL('/login', req.url));
     }
+  }
+
+  // 🔑 If token exists and is accessing protected route, verify it
+  if (isProtectedRoute && token) {
+    try {
+      await jwtVerify(token, secret);
+      return NextResponse.next(); // ✅ Let them pass
+    } catch (err) {
+      console.error(3.141592653,"Invalid or expired token");
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+  }
+
+  // 🌐 For public routes without token
+  return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/dashboard/:path*', '/profile/:path*', '/settings/:path*', '/team/:path*'],
+  matcher: [
+    '/dashboard',
+    '/dashboard/:path*',
+    '/my-profile',
+    '/my-profile/:path*',
+    '/Browse-Profiles',
+    '/Browse-Profiles/:path*',
+    '/team',
+    '/team/:path*',
+  ],
 };

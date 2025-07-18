@@ -5,6 +5,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Toaster } from "./../components/ui/sonner"
 import Navbar from "@/components/Navbar";
+import ReactQueryProvider from "@/components/ReactQueryProvider";
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,22 +33,26 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
       >
-        <ThemeProvider>
-          <AuthProvider>
-            <Navbar />
-            <main>
-              {children}
-            </main>
-            <Toaster richColors toastOptions={
-              {
-                classNames: {
-                  error: '!bg-red-100 !text-red-600',
-                  success: '!bg-white dark:!bg-black'
+        <ReactQueryProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <Navbar />
+              <main>
+
+                {children}
+
+              </main>
+              <Toaster richColors toastOptions={
+                {
+                  classNames: {
+                    error: '!bg-red-100 !text-red-600',
+                    success: '!bg-white dark:!bg-black'
+                  }
                 }
-              }
-            }/>
-          </AuthProvider>
-        </ThemeProvider>
+              }/>
+            </AuthProvider>
+          </ThemeProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

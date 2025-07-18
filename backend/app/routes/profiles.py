@@ -1,11 +1,13 @@
 import os
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app.auth import get_current_user
 from app.models import User, UserProfile, UserImage
-from app.schemas import UserProfileCreate, UserProfileOut
-from app.utils.s3 import delete_s3_object, generate_presigned_post
+from app.schemas import UserProfileCreate, UserProfileWithUser
+from app.utils.s3 import delete_s3_object
+from typing import List
+
 
 router = APIRouter()
 
@@ -43,3 +45,21 @@ def create_or_update_profile(
     db.refresh(profile)
     return {"message":"Profile saved successfully"}
 
+@router.post("/get-all-profiles", response_model=List[UserProfileWithUser])
+def get_profiles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    """
+    Paginated route for profile data
+    """
+    profiles = (
+        db.query(UserProfile)
+        .join(User, User.id == UserProfile.user_id)
+        .options(
+            joinedload(UserProfile.user),
+            joinedload(UserProfile.user).joinedload(User.images)
+        )
+        .order_by(User.username.asc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    return profiles

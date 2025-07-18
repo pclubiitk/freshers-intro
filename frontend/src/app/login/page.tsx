@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation';
 import { Mail, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/contexts/ThemeContext';
+
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, loading_or_not, isAuthenticated, refreshUser } = useAuth(); 
+  const { loading_or_not, isAuthenticated, refreshUser } = useAuth();
   const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
   const [email, setEmail] = useState('');

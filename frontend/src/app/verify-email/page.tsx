@@ -55,7 +55,7 @@ export default function VerifyEmailPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gray-50 dark:bg-gray-900 transition">
-     
+
       {status === 'loading' && (
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-lg">
           <Loader2 className="animate-spin" />
@@ -63,7 +63,7 @@ export default function VerifyEmailPage() {
         </div>
       )}
 
-    
+
       {status === 'success' && (
         <div className="flex flex-col items-center gap-2 text-green-700 dark:text-green-400">
           <CheckCircle2 size={32} />
@@ -71,7 +71,7 @@ export default function VerifyEmailPage() {
         </div>
       )}
 
-      
+
       {status === 'already' && (
         <div className="flex flex-col items-center gap-2 text-yellow-700 dark:text-yellow-400">
           <CheckCircle2 size={32} />
