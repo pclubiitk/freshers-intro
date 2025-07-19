@@ -23,7 +23,7 @@ export default function LoginPage() {
       if (!loading_or_not && isAuthenticated) {
         router.replace('/my-profile');
       }
-    }, [loading_or_not, isAuthenticated]);
+    }, [loading_or_not, isAuthenticated, router]);
   
     if (loading_or_not) return <div>loading...</div>;
   
@@ -141,7 +141,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              placeholder="cc_username@iitk.ac.in"
+              placeholder="<roll_number>@iitk.ac.in"
             />
           </div>
         </div>

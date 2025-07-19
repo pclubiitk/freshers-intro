@@ -16,7 +16,7 @@ export default function ProfilePage() {
       });
       router.replace('/login');
     }
-  }, [loading_or_not, isAuthenticated]);
+  }, [loading_or_not, isAuthenticated, router]);
 
   if (loading_or_not) return <div>loading...</div>;
 

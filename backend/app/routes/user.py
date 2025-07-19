@@ -18,7 +18,11 @@ async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     existing = db.query(models.User).filter(models.User.email == str.lower(user.email)).first()
     if existing:
         raise HTTPException(status_code=400, detail="User already registered")
-
+    email = str.lower(user.email)
+    roll = email.split('@')[0]
+    # if not roll.startswith('25'):
+    #     raise HTTPException(status_code=400, detail="Only Y25s are allowed to register")
+    
     hashed = auth.get_password_hash(user.password)
     new_user = models.User(username=user.username, email=str.lower(user.email), hashed_password=hashed)
     db.add(new_user)

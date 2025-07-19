@@ -31,7 +31,7 @@ const Navbar = () => {
 
   const navItems = [
     { label: 'Home', href: '/' },
-    { label: 'Browse Profiles', href: '/Browse-Profiles' },
+    { label: 'Browse Profiles', href: '/profiles' },
     ...(isAuthenticated
       ? [
           { label: `My Profile`, href: '/my-profile' },

@@ -1,4 +1,5 @@
 from datetime import date
+from uuid import UUID
 from pydantic import BaseModel, EmailStr, validator
 from typing import List, Optional, Dict
 
@@ -24,7 +25,7 @@ class UserLogin(BaseModel):
         return v
 
 class UserOut(BaseModel):
-    id: int
+    id: UUID
     username: str
     email: EmailStr
     is_verified: bool
@@ -50,14 +51,14 @@ class UserProfileCreate(BaseModel):
     image_keys: Optional[List[str]] = []
 
 class UserImageOut(BaseModel):
-    id: int
+    id: UUID
     image_url: str
 
     class Config:
         orm_mode = True
 
 class UserProfileOut(BaseModel):
-    id: int
+    id: UUID
     bio: Optional[str]
     branch: Optional[str]
     batch: Optional[str]
@@ -70,7 +71,7 @@ class UserProfileOut(BaseModel):
         orm_mode = True
 
 class UserOutWithImages(BaseModel):
-    id: int
+    id: UUID
     username: str
     email: EmailStr
     is_verified: bool
@@ -80,7 +81,7 @@ class UserOutWithImages(BaseModel):
         orm_mode = True
 
 class UserProfileWithUser(BaseModel):
-    id: int
+    id: UUID
     bio: Optional[str]
     branch: Optional[str]
     batch: Optional[str]

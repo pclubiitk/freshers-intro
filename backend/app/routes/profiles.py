@@ -7,6 +7,7 @@ from app.models import User, UserProfile, UserImage
 from app.schemas import UserProfileCreate, UserProfileWithUser
 from app.utils.s3 import delete_s3_object
 from typing import List
+from uuid import UUID
 
 
 router = APIRouter()
@@ -63,3 +64,25 @@ def get_profiles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
         .all()
     )
     return profiles
+
+from fastapi import Query
+
+@router.get("/get-profile-by-id", response_model=UserProfileWithUser)
+def get_profile_by_id(
+    id: UUID = Query(..., description="User ID (UUID) to fetch the profile for"),
+    db: Session = Depends(get_db),
+):
+    profile = (
+        db.query(UserProfile)
+        .filter(UserProfile.user_id == id)
+        .options(
+            joinedload(UserProfile.user),
+            joinedload(UserProfile.user).joinedload(User.images)
+        )
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    return profile

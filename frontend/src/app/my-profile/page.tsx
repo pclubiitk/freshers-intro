@@ -31,7 +31,6 @@ const AddIntroPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>('');
-  const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [formData, setFormData] = useState<FormDataType>({
     bio: '',
     branch: '',
@@ -205,7 +204,6 @@ const AddIntroPage: React.FC = () => {
 
     setIsSubmitting(true);
     setSubmitError('');
-    setSubmitSuccess(false);
 
     try {
       if ( !formData.bio.trim() || formData.interests.length === 0) {
@@ -236,13 +234,12 @@ const AddIntroPage: React.FC = () => {
         throw new Error(errorText);
       }
 
-      setSubmitSuccess(true);
       toast.success('Profile submitted successfully!');
       await clearPreviews();
       setPreviews([]);
       localStorage.clear()
       setTimeout(() => {
-        router.push('/Browse-Profiles')
+        router.push('/profiles')
         setFormData({
           bio: '',
           branch: '',
@@ -396,7 +393,7 @@ const AddIntroPage: React.FC = () => {
             <h3 className={`text-xl font-semibold ${styles.textColor}`}>Your Interests</h3>
             <div className="flex flex-wrap gap-2 mb-2">
               {formData.interests.map((interest) => (
-                <InterestTag key={interest} text={interest} onRemove={() => handleInterestRemove(interest)} removable theme={theme} />
+                <InterestTag key={interest} text={interest} onRemove={() => handleInterestRemove(interest)} removable />
               ))}
             </div>
             <div className="flex flex-wrap gap-2">
@@ -406,7 +403,6 @@ const AddIntroPage: React.FC = () => {
                   text={interest}
                   onClick={() => handleInterestAdd(interest)}
                   disabled={formData.interests.includes(interest) || formData.interests.length >= 5}
-                  theme={theme}
                 />
               ))}
             </div>
@@ -436,7 +432,7 @@ const AddIntroPage: React.FC = () => {
               <h3 className={`text-xl font-semibold ${styles.textColor}`}>Your Hobbies</h3>
               <div className="flex flex-wrap gap-2 mb-2">
                 {formData.hobbies.map((Hobby) => (
-                  <InterestTag key={Hobby} text={Hobby} onRemove={() => handleHobbyRemove(Hobby)} removable theme={theme} />
+                  <InterestTag key={Hobby} text={Hobby} onRemove={() => handleHobbyRemove(Hobby)} removable />
                 ))}
               </div>
               <div className="flex flex-wrap gap-2">
@@ -446,7 +442,6 @@ const AddIntroPage: React.FC = () => {
                     text={hobby}
                     onClick={() => handleHobbyAdd(hobby)}
                     disabled={formData.hobbies.includes(hobby) || formData.hobbies.length >= 5}
-                    theme={theme}
                   />
                 ))}
               </div>
@@ -484,13 +479,13 @@ const AddIntroPage: React.FC = () => {
             <p><strong>Hobbies:</strong></p>
             <div className="flex flex-wrap gap-2">
               {formData.hobbies.map((hobby) => (
-                <InterestTag key={hobby} text={hobby} theme={theme} />
+                <InterestTag key={hobby} text={hobby} />
               ))}
             </div>
             <p><strong>Interests:</strong></p>
             <div className="flex flex-wrap gap-2">
               {formData.interests.map((interest) => (
-                <InterestTag key={interest} text={interest} theme={theme} />
+                <InterestTag key={interest} text={interest} />
               ))}
             </div>
 
@@ -511,7 +506,7 @@ const AddIntroPage: React.FC = () => {
         Complete Your Profile
       </h1>
       <div className="w-full max-w-3xl">
-        <ProgressStepper steps={['Basic Info', 'About You', 'Confirm']} currentStep={currentStep} theme={theme} />
+        <ProgressStepper steps={['Basic Info', 'About You', 'Confirm']} currentStep={currentStep} />
         <form onSubmit={handleSubmit} className="mt-8 space-y-8">
           {renderStep()}
           {submitError && <p className="text-red-500 text-center">{submitError}</p>}
