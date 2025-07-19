@@ -8,7 +8,6 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 print("DATABASE_URL:", os.getenv("DATABASE_URL"))
-print(make_url(DATABASE_URL))
 
 from sqlalchemy.engine.url import URL
 
