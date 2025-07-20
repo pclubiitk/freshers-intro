@@ -13,6 +13,7 @@ import pytz
 ist = pytz.timezone('Asia/Kolkata')
 router = APIRouter(prefix="/auth", tags=["Auth"])
 RESEND_COOLDOWN = os.getenv("RESEND_COOLDOWN")
+FRONTEND_DOMAIN = os.getenv("FRONTEND_DOMAIN")
 @router.post("/signup")
 async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     existing = db.query(models.User).filter(models.User.email == str.lower(user.email)).first()
@@ -81,6 +82,8 @@ def login(form: schemas.UserLogin, response: Response, db: Session = Depends(get
         httponly=True,
         secure=True,             # Set True in production (HTTPS)
         samesite="None",         # Required for cross-site cookies
+        domain=FRONTEND_DOMAIN,
+        path="/",
         max_age=60 * 60 * 24     # 1 day
     )
 
