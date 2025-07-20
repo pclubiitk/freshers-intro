@@ -5,7 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Toaster } from "./../components/ui/sonner"
 import Navbar from "@/components/Navbar";
-import ReactQueryProvider from "@/components/ReactQueryProvider";
+import ReactQueryProvider from "@/contexts/ReactQueryProviderContext";
 
 
 const geistSans = Geist({

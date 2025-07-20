@@ -63,3 +63,18 @@ def get_profiles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
         .all()
     )
     return profiles
+
+
+@router.get("/get-my-profile", response_model=UserProfileWithUser)
+def get_my_profile(db: Session = Depends(get_db), user: User = Depends(get_current_user),):
+    profiles = (
+        db.query(UserProfile)
+        .filter_by(user_id=user.id)
+        .join(User, User.id == UserProfile.user_id)
+        .options(
+            joinedload(UserProfile.user),
+            joinedload(UserProfile.user).joinedload(User.images)
+        )
+        .first()
+    )
+    return profiles

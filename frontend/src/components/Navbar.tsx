@@ -7,13 +7,14 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import { useRouter, usePathname } from 'next/navigation';
+import { useQueryClientInstance } from '@/contexts/ReactQueryProviderContext';
 
 const Navbar = () => {
   const { theme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
-
+  const queryClient = useQueryClientInstance();
   const { user, isAuthenticated, refreshUser, loading_or_not } = useAuth();
 
   const handleLogout = async () => {
@@ -23,6 +24,18 @@ const Navbar = () => {
         credentials: 'include',
       });
       await refreshUser();
+
+      
+      queryClient.clear();
+      localStorage.clear()
+      if (window.indexedDB && indexedDB.databases) {
+        indexedDB.databases().then((dbs) => {
+          dbs.forEach((db) => {
+            if (db.name) indexedDB.deleteDatabase(db.name);
+          });
+        });
+      }
+
       router.replace('/login');
     } catch (err) {
       console.error("Logout failed", err);
