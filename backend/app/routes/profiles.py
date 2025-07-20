@@ -67,8 +67,8 @@ def get_profiles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
 
 
 @router.get("/get-my-profile", response_model=UserProfileWithUser)
-def get_my_profile(db: Session = Depends(get_db), user: User = Depends(get_current_user),):
-    profiles = (
+def get_my_profile(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    profile = (
         db.query(UserProfile)
         .filter_by(user_id=user.id)
         .join(User, User.id == UserProfile.user_id)
@@ -78,7 +78,29 @@ def get_my_profile(db: Session = Depends(get_db), user: User = Depends(get_curre
         )
         .first()
     )
-    return profiles
+
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    return {
+    "id": profile.id,
+    "bio": profile.bio,
+    "branch": profile.branch,
+    "batch": profile.batch,
+    "hostel": profile.hostel,
+    "interests": profile.interests,
+    "user": {
+        "id": profile.user.id,
+        "username": profile.user.username,
+        "email": profile.user.email,
+        "images": [
+            {"id": img.id, "image_url": img.image_url}
+            for img in profile.user.images
+        ],
+        "is_verified": profile.user.is_verified
+    }
+}
+
 
 from fastapi import Query
 
