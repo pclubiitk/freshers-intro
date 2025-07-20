@@ -305,7 +305,7 @@ const ProfileCard = ({ profile }: { profile: Profile }) => (
           className="w-full h-full"
         >
           {profile.user.images.map((obj, i) => (
-            <SwiperSlide key={obj.id || i}>
+            <SwiperSlide key={i}>
               <div className="relative w-full h-full">
                 <Image
                   src={obj.image_url}
@@ -347,7 +347,7 @@ const ProfileCard = ({ profile }: { profile: Profile }) => (
             variant="default"
             className="bg-orange-500 text-white dark:bg-orange-600"
           >
-            Batch {profile.batch}
+            Batch: {profile.batch}
           </Badge>
         )}
         {profile.batch && (
@@ -355,7 +355,7 @@ const ProfileCard = ({ profile }: { profile: Profile }) => (
             variant="default"
             className="bg-blue-500 text-white dark:bg-blue-600"
           >
-            Batch {profile.branch}
+            Branch: {profile.branch}
           </Badge>
         )}
       </div>

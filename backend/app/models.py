@@ -28,7 +28,7 @@ class UserProfile(Base):
     hostel = Column(String, nullable=True)
     interests = Column(JSON, nullable=True)
 
-    user = relationship("User", backref="profile")
+    user = relationship("User", back_populates="profile")
 
 
 class UserImage(Base):

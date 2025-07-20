@@ -34,7 +34,7 @@ export default function Home() {
   </Link>
   <Link
     href="/profiles"
-    className="px-6 py-3 font-semibold rounded-lg bg-black/10 dark:bg-white/10 border border-black/10 dark:border-white/10 hover:bg-black/20 dark:hover:bg-white/20 transition no-underline"
+    className="px-6 py-3 font-semibold rounded-lg bg-black/10 dark:bg-white/10 border border-black/10 dark:border-white/10 hover:bg-black/20 dark:hover:bg-white/20 hover:text-black hover:dark:text-white transition no-underline"
   >
     View Profiles
   </Link>

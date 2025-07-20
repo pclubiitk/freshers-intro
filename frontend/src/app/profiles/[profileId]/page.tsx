@@ -1,7 +1,6 @@
 import ProfileDetails from '../../../components/ProfileDetails';
 import { notFound } from 'next/navigation';
 import { Profile } from '@/utils/types';
-import { UUID } from 'crypto';
 
 const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
@@ -18,10 +17,11 @@ async function fetchProfileById(id: string): Promise<Profile | null> {
     return null;
   }
 }
-export default async function ProfilePage({ params }: { params: { profileId: UUID } }) {
-  const {profileId} = await params;
-  const profile = await fetchProfileById(profileId);
 
+export default async function ProfilePage({ params }: { params: Promise<{ profileId: string }> }) {
+  const {profileId} = await params;
+  const decodedId = decodeURIComponent(profileId);
+  const profile = await fetchProfileById(decodedId);
   if (!profile) return notFound();
 
   return <ProfileDetails profile={profile} />;

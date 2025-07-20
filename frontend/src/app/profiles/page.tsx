@@ -87,7 +87,8 @@ const UserGallery = () => {
     const search = searchTerm.toLowerCase();
     return (
       profile.user.username.toLowerCase().includes(search) ||
-      profile.interests?.some((i) => i.toLowerCase().includes(search))
+      profile.interests?.some((i) => i.toLowerCase().includes(search)) ||
+      profile.user.email.split('@')[0].includes(search)
     );
   });
 
@@ -143,9 +144,14 @@ const UserGallery = () => {
               </div>
 
               <div className="flex-1 flex flex-col">
-                <h2 className="text-xl font-semibold mb-1 group-hover:text-indigo-600 transition-colors">
+                <div className='flex flex-row place-content-between'>
+                  <h2 className="text-xl font-semibold mb-1 group-hover:text-indigo-600 transition-colors">
                   {profile.user.username}
-                </h2>
+                  </h2>
+                  <span className='bg-indigo-600 text-white text-sm px-3 py-1 rounded-full'>
+                    {profile.user.email.split('@')[0]}
+                  </span>
+                </div>
                 <p className="text-gray-700 dark:text-gray-300 text-sm line-clamp-3 mb-3">
                   {profile.bio || 'No bio provided.'}
                 </p>

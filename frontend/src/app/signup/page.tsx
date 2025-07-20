@@ -28,11 +28,15 @@ export default function SignupPage() {
     if (loading_or_not) return <div>loading...</div>;
   
   
+  const isValidY25Email = (email: string) => {
+  return /^[0-9]{5}@iitk\.ac\.in$/.test(email);
+};
+const isIITKEmail = (email: string) => email.endsWith("@iitk.ac.in");
 
-  const isIITKEmail = (email: string) => email.endsWith("@iitk.ac.in");
-  const isY25 = (email: string) => email.startsWith('25') || email.split('@')[0].endsWith('25');
-  const Y25butNotRoll = (email: string) => email.split('@')[0].endsWith('25')
-  console.log(Y25butNotRoll(email))
+const getEmailPrefix = (email: string) => email.split("@")[0];
+
+
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -41,17 +45,21 @@ export default function SignupPage() {
       toast.error("Only IITK emails are allowed.");
       return;
     }
+    const prefix = getEmailPrefix(email);
+    
+    if (!/^[0-9]{6}$/.test(prefix)) {
+      toast.error("Do not use CC Usernames. Use your roll number email (e.g. 250000@iitk.ac.in).");
+      return
+    }
 
-    // if (!isY25(email)) {
-    //   toast.error("Only Y25s are allowed to register.")
-    //   return
-    // }
-    
-    // if (Y25butNotRoll(email)) {
-    //   toast.error("Please enter your email in required format (eg. 250000@iitk.ac.in)")
-    //   return
-    // }
-    
+//     if (/[a-zA-Z]/.test(prefix) && prefix.endsWith("25")) {
+//     toast.error("Do not use CC Usernames. Use your roll number email (e.g. 250000@iitk.ac.in).");
+//     return;
+//   }
+//  if (!/^[0-9]{6}$/.test(prefix) || !prefix.startsWith("25")) {
+//     toast.error("Only valid Y25s roll are allowed.");
+//     return;
+//   }
 
     const signupPromise = new Promise<void>(async (resolve, reject) => {
       try {

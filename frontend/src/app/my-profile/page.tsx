@@ -30,12 +30,9 @@ type FormDataType = {
 
 
 
-type InitialLoadProps = {
-  setFormData: React.Dispatch<React.SetStateAction<FormDataType>>;
-  setKnowlege: React.Dispatch<React.SetStateAction<Knowledge[]>>;
-};
-
-export const InitialLoad = async ( setFormData, setInitialProfile ) => {
+const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<FormDataType>>,
+  setInitialProfile: React.Dispatch<React.SetStateAction<Profile>>
+ ) => {
   try {
     const res = await fetch(`${BACKEND_ORIGIN}/profile/get-my-profile`, {
       method: 'GET',
@@ -84,7 +81,7 @@ const AddIntroPage: React.FC = () => {
     hostel: '',
   });
   const [initialProfile,setInitialProfile] = useState<Profile>({
-    user:{ username: '', email: '', id: 0, is_varified: false, images: [] }
+    user:{ username: '', email: '', id: 0, is_verified: false, images: [] }
   }
   )
   const [interest, setInterest] = useState<string>('');
@@ -271,7 +268,7 @@ const AddIntroPage: React.FC = () => {
       setKnowledge([]);
       localStorage.removeItem('userProfile');
       localStorage.removeItem('currentStep');
-      router.push('/Browse-Profiles');
+      router.push('/profiles');
     } catch (err: any) {
       setSubmitError(err.message || 'Submission failed');
       toast.error(err.message);
@@ -412,7 +409,7 @@ const AddIntroPage: React.FC = () => {
             <h3 className={`text-xl font-semibold ${styles.textColor}`}>Your Interests</h3>
             <div className="flex flex-wrap gap-2 mb-2">
               {formData?.interests.map((interest) => (
-                <InterestTag key={interest} text={interest} onRemove={() => handleInterestRemove(interest)} removable theme={theme} />
+                <InterestTag key={interest} text={interest} onRemove={() => handleInterestRemove(interest)} removable />
               ))}
             </div>
             <div className="flex flex-wrap gap-2">
@@ -422,7 +419,6 @@ const AddIntroPage: React.FC = () => {
                   text={interest}
                   onClick={() => handleInterestAdd(interest)}
                   disabled={formData?.interests.includes(interest) || formData?.interests.length >= 5}
-                  theme={theme}
                 />
               ))}
             </div>
@@ -498,7 +494,7 @@ const AddIntroPage: React.FC = () => {
           Your Profile
         </h1>
         <div className="w-full max-w-3xl">
-          <ProgressStepper steps={['Basic Info', 'About You', 'Confirm']} currentStep={currentStep} theme={theme} />
+          <ProgressStepper steps={['Basic Info', 'About You', 'Confirm']} currentStep={currentStep} />
           <form onSubmit={handleSubmit} className="mt-8 space-y-8">
             {renderStep()}
             {submitError && <p className="text-red-500 text-center">{submitError}</p>}

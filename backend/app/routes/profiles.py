@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app.auth import get_current_user
@@ -79,3 +79,26 @@ def get_my_profile(db: Session = Depends(get_db), user: User = Depends(get_curre
         .first()
     )
     return profiles
+
+from fastapi import Query
+
+@router.get("/get-profile-by-id", response_model=UserProfileWithUser)
+def get_profile_by_user_id(
+    id: UUID = Query(..., description="UUID of the User"),
+    db: Session = Depends(get_db)
+):
+    profile = (
+        db.query(UserProfile)
+        .filter_by(user_id=id)
+        .join(User, User.id == UserProfile.user_id)
+        .options(
+            joinedload(UserProfile.user),
+            joinedload(UserProfile.user).joinedload(User.images)
+        )
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found for given user_id")
+
+    return profile
