@@ -89,7 +89,7 @@ def login(form: schemas.UserLogin, response: Response, db: Session = Depends(get
 
     response.headers.append(
         "Set-Cookie",
-        f"access_token={token}; Path=/; Secure; HttpOnly; Partitioned; Max-Age=86400"
+        f"access_token={token}; Path=/; Secure; HttpOnly; Partitioned; SameSite=None; Max-Age=86400"
     )
 
     return {"message": "Login successful"}
