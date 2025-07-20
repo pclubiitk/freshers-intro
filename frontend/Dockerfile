@@ -1,9 +1,20 @@
-FROM node:20-alpine
-
+FROM node:18 AS builder
 WORKDIR /app
+
 COPY . .
+
+ARG NEXT_PUBLIC_BACKEND_ORIGIN
+
+ENV NEXT_PUBLIC_BACKEND_ORIGIN=$NEXT_PUBLIC_BACKEND_ORIGIN
+
 RUN npm install
 RUN npm run build
+
+FROM node:18-slim
+WORKDIR /app
+
+COPY --from=builder /app ./
+ENV NEXT_PUBLIC_BACKEND_ORIGIN=$NEXT_PUBLIC_BACKEND_ORIGIN
 
 EXPOSE 3000
 CMD ["npm", "start"]
