@@ -45,21 +45,12 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
       toast.error("Only IITK emails are allowed.");
       return;
     }
-    const prefix = getEmailPrefix(email);
+    // const prefix = getEmailPrefix(email);
     
-    if (!/^[0-9]{6}$/.test(prefix)) {
-      toast.error("Do not use CC Usernames. Use your roll number email (e.g. 250000@iitk.ac.in).");
-      return
-    }
-
-//     if (/[a-zA-Z]/.test(prefix) && prefix.endsWith("25")) {
-//     toast.error("Do not use CC Usernames. Use your roll number email (e.g. 250000@iitk.ac.in).");
-//     return;
-//   }
-//  if (!/^[0-9]{6}$/.test(prefix) || !prefix.startsWith("25")) {
-//     toast.error("Only valid Y25s roll are allowed.");
-//     return;
-//   }
+    // if (!prefix.endsWith('25')) {
+    //   toast.error("Only Y25s allowed to register");
+    //   return
+    // }
 
     const signupPromise = new Promise<void>(async (resolve, reject) => {
       try {
