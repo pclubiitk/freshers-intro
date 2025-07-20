@@ -76,15 +76,20 @@ def login(form: schemas.UserLogin, response: Response, db: Session = Depends(get
 
     token = auth.create_access_token(data={"sub": user.email})
     # Set cookie with JWT token
-    response.set_cookie(
-        key="access_token",
-        value=token,
-        httponly=True,
-        secure=True,             # Set True in production (HTTPS)
-        samesite="None",         # Required for cross-site cookies
-        domain=FRONTEND_DOMAIN,
-        path="/",
-        max_age=60 * 60 * 24     # 1 day
+    # response.set_cookie(
+    #     key="access_token",
+    #     value=token,
+    #     httponly=True,
+    #     secure=True,             # Set True in production (HTTPS)
+    #     samesite="none",         # Required for cross-site cookies
+    #     domain=FRONTEND_DOMAIN,
+    #     path="/",
+    #     max_age=60 * 60 * 24     # 1 day
+    # )
+
+    response.headers.append(
+        "Set-Cookie",
+        f"access_token={token}; Path=/; Secure; HttpOnly; Partitioned; Max-Age=86400"
     )
 
     return {"message": "Login successful"}
@@ -148,5 +153,12 @@ def get_me(
 
 @router.post("/logout")
 def logout(response: Response):
-    response.delete_cookie("access_token")
+    # response.delete_cookie("access_token")
+
+    response.headers.append(
+        "Set-Cookie",
+        "access_token=; Path=/; Secure; HttpOnly; Partitioned; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    )
+
+
     return {"message": "Logged out"}
