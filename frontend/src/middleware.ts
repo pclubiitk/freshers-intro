@@ -5,7 +5,7 @@ import { jwtVerify } from 'jose';
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
 
 const PUBLIC_ROUTES = ['/login', '/signup'];
-const PROTECTED_ROUTES = ['/dashboard', '/my-profile', '/Browse-Profiles', '/team'];
+const PROTECTED_ROUTES = ['/dashboard', '/my-profile', '/profiles', '/team'];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -51,8 +51,8 @@ export const config = {
     '/dashboard/:path*',
     '/my-profile',
     '/my-profile/:path*',
-    '/Browse-Profiles',
-    '/Browse-Profiles/:path*',
+    '/profiles',
+    '/profiles/:path*',
     '/team',
     '/team/:path*',
   ],

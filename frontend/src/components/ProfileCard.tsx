@@ -350,6 +350,14 @@ const ProfileCard = ({ profile }: { profile: Profile }) => (
             Batch {profile.batch}
           </Badge>
         )}
+        {profile.batch && (
+          <Badge
+            variant="default"
+            className="bg-blue-500 text-white dark:bg-blue-600"
+          >
+            Batch {profile.branch}
+          </Badge>
+        )}
       </div>
     </div>
   </div>

@@ -9,7 +9,7 @@ export default function Home() {
 
       <main className="flex-grow flex flex-col items-center justify-start px-6 text-center">
         <div className="flex items-center justify-center gap-4 mb-4">
-          <img
+          <Image
             src="/images/pclublogo.png"
             alt="Programming Club IITK Logo"
             width={80}

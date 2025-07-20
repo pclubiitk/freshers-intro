@@ -76,7 +76,6 @@ const AddIntroPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>('');
-  const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [formData, setFormData] = useState<FormDataType>({
     bio: '',
     branch: '',
@@ -238,7 +237,6 @@ const AddIntroPage: React.FC = () => {
 
     setIsSubmitting(true);
     setSubmitError('');
-    setSubmitSuccess(false);
 
     try {
       if ( !formData.bio.trim() || formData.interests.length === 0) {
@@ -268,7 +266,6 @@ const AddIntroPage: React.FC = () => {
         throw new Error(errorText);
       }
 
-      setSubmitSuccess(true);
       toast.success('Profile submitted successfully!');
       await clearKnowledge();
       setKnowledge([]);
@@ -464,7 +461,7 @@ const AddIntroPage: React.FC = () => {
             <p><strong>Interests:</strong></p>
             <div className="flex flex-wrap gap-2">
               {formData.interests.map((interest) => (
-                <InterestTag key={interest} text={interest} theme={theme} />
+                <InterestTag key={interest} text={interest} />
               ))}
             </div>
 

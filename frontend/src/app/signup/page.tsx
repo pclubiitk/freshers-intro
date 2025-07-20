@@ -23,14 +23,16 @@ export default function SignupPage() {
       if (!loading_or_not && isAuthenticated) {
         router.replace('/my-profile');
       }
-    }, [loading_or_not, isAuthenticated]);
+    }, [loading_or_not, isAuthenticated, router]);
   
     if (loading_or_not) return <div>loading...</div>;
   
   
 
   const isIITKEmail = (email: string) => email.endsWith("@iitk.ac.in");
-
+  const isY25 = (email: string) => email.startsWith('25') || email.split('@')[0].endsWith('25');
+  const Y25butNotRoll = (email: string) => email.split('@')[0].endsWith('25')
+  console.log(Y25butNotRoll(email))
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -39,6 +41,17 @@ export default function SignupPage() {
       toast.error("Only IITK emails are allowed.");
       return;
     }
+
+    // if (!isY25(email)) {
+    //   toast.error("Only Y25s are allowed to register.")
+    //   return
+    // }
+    
+    // if (Y25butNotRoll(email)) {
+    //   toast.error("Please enter your email in required format (eg. 250000@iitk.ac.in)")
+    //   return
+    // }
+    
 
     const signupPromise = new Promise<void>(async (resolve, reject) => {
       try {
@@ -120,7 +133,7 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-              placeholder="cc_userrname@iitk.ac.in"
+              placeholder="<roll_number>@iitk.ac.in"
             />
           </div>
         </div>

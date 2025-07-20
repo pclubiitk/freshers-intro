@@ -7,6 +7,7 @@ from app.models import User, UserProfile, UserImage
 from app.schemas import UserProfileCreate, UserProfileWithUser
 from app.utils.s3 import delete_s3_object
 from typing import List
+from uuid import UUID
 
 
 router = APIRouter()

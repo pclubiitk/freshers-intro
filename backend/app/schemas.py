@@ -96,6 +96,7 @@
 
 
 from datetime import date
+from uuid import UUID
 from pydantic import BaseModel, EmailStr, validator
 from typing import List, Optional, Dict
 from uuid import UUID
