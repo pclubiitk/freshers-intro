@@ -49,7 +49,7 @@ export default function LoginPage() {
       });
 
       if (res.status === 422) {
-        toast.error('Please recheck your login details.');
+        toast.error('Invalid details.');
         return;
       }
 

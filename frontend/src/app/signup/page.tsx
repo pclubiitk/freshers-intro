@@ -63,6 +63,11 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
 
         const data = await res.json();
 
+        if (res.status == 422){
+          reject(new Error(data.detail[0].ctx.reason || "Invalid fields."))
+          return
+        }
+
         if (!res.ok) {
           reject(new Error(data.detail || "Signup failed."));
           return;

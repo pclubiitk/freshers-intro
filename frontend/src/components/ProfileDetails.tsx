@@ -6,60 +6,96 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Profile } from '@/utils/types';
+import { FaCheckCircle, FaUserGraduate, FaBuilding, FaLayerGroup, FaRegStar } from 'react-icons/fa';
 
 export default function ProfileDetails({ profile }: { profile: Profile }) {
   const images = profile.user.images.length > 0
     ? profile.user.images.map((img) => img.image_url)
-    : ['images/profile-placeholder.jpg'];
+    : ['/images/profile-placeholder.jpg'];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row gap-8">
-          <div className="w-full md:w-1/2">
-            <div className="rounded-lg overflow-hidden shadow-lg border border-gray-300 dark:border-gray-700">
-                <Swiper
-                modules={[Navigation, Pagination]}
-                navigation
-                pagination={{ clickable: true }}
-                className="w-full h-96"
-              >
-                {images.map((url, i) => (
-                  <SwiperSlide key={i}>
-                    <img
-                      src={url}
-                      alt={`${profile.user.username} Photo ${i}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
+    <div className="min-h-screen bg-gradient-to-b from-purple-900 via-black to-black text-white px-6 py-12">
+      <div className="max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          {/* Image Carousel */}
+          <div className="rounded-3xl overflow-hidden shadow-2xl border border-purple-800 bg-black/20 backdrop-blur-sm">
+            <Swiper
+              modules={[Navigation, Pagination]}
+              navigation
+              pagination={{ clickable: true }}
+              className="w-full h-[24rem]"
+            >
+              {images.map((url, i) => (
+                <SwiperSlide key={i}>
+                  <img
+                    src={url}
+                    alt={`${profile.user.username} Photo ${i + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
 
-          <div className="w-full md:w-1/2">
-            <h1 className="text-3xl font-bold mb-4">{profile.user.username}</h1>
-
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">About</h2>
-              <p className="text-gray-700 dark:text-gray-300">
-                {profile.bio || 'No bio provided.'}
-              </p>
-            </div>
-
+          {/* Profile Info */}
+          <div className="flex flex-col justify-between">
             <div>
-              <h2 className="text-xl font-semibold mb-2">Interests</h2>
-              <div className="flex flex-wrap gap-2">
-                {profile.interests?.length ? (
-                  profile.interests.map((interest, i) => (
-                    <span key={i} className="bg-indigo-600 text-white px-3 py-1 rounded-full">
-                      {interest}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500">No interests listed.</p>
+              <h1 className="text-4xl font-bold tracking-tight mb-2 flex items-center gap-2">
+                {profile.user.username}
+                {profile.user.is_verified && (
+                  <FaCheckCircle className="text-green-400 animate-pulse" title="Verified" />
                 )}
-              </div>
+              </h1>
+              <p className="text-sm text-purple-300 mb-6">@{profile.user.email.split('@')[0]}</p>
+
+              {/* About */}
+              {profile.bio && (
+                <section className="mb-6">
+                  <h2 className="text-xl font-semibold mb-2">📝 About</h2>
+                  <p className="text-purple-100 leading-relaxed bg-purple-800/20 p-4 rounded-xl border border-purple-600">
+                    {profile.bio}
+                  </p>
+                </section>
+              )}
+
+              {/* Details Section */}
+              <section className="mb-6">
+                <h2 className="text-xl font-semibold mb-2">📚 Academic Info</h2>
+                <ul className="space-y-2">
+                  {profile.branch && (
+                    <li className="flex items-center gap-2 text-purple-200">
+                      <FaLayerGroup className="text-purple-400" /> <strong>Branch:</strong> {profile.branch}
+                    </li>
+                  )}
+                  {profile.batch && (
+                    <li className="flex items-center gap-2 text-purple-200">
+                      <FaUserGraduate className="text-purple-400" /> <strong>Batch:</strong> {profile.batch}
+                    </li>
+                  )}
+                  {profile.hostel && (
+                    <li className="flex items-center gap-2 text-purple-200">
+                      <FaBuilding className="text-purple-400" /> <strong>Hostel:</strong> {profile.hostel}
+                    </li>
+                  )}
+                </ul>
+              </section>
+
+              {/* Interests */}
+              {profile.interests?.length > 0 && (
+                <section>
+                  <h2 className="text-xl font-semibold mb-2">🔥 Interests</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.interests.map((interest, i) => (
+                      <span
+                        key={i}
+                        className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-md hover:bg-indigo-600 hover:scale-105 transition"
+                      >
+                        {interest}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
           </div>
         </div>

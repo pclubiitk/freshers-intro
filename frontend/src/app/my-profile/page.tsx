@@ -12,6 +12,7 @@ import { getKnowledge, addKnowledge, removeKnowledge, clearKnowledge } from '@/u
 import Image from 'next/image';
 import { Knowledge, Profile, User } from '@/utils/types';
 import ProfileCard from '@/components/ProfileCard';
+import { useAuth } from '@/contexts/AuthContext';
 
 const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
@@ -69,6 +70,7 @@ const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<For
 const AddIntroPage: React.FC = () => {
   const router = useRouter();
   const { theme } = useTheme();
+  const {isAuthenticated} = useAuth();
 
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -262,16 +264,16 @@ const AddIntroPage: React.FC = () => {
         const errorText = await res.text();
         throw new Error(errorText);
       }
-
+SubmitError
       toast.success('Profile submitted successfully!');
-      await clearKnowledge();
+      await clearKnowledge();SubmitError
       setKnowledge([]);
       localStorage.removeItem('userProfile');
       localStorage.removeItem('currentStep');
       router.push('/profiles');
     } catch (err: any) {
-      setSubmitError(err.message || 'Submission failed');
-      toast.error(err.message);
+      // setSubmitError(err.message || 'Submission failed');
+      toast.error(err.message || 'Submission failed');
     } finally {
       setIsSubmitting(false);
     }

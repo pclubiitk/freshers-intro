@@ -30,7 +30,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 def get_current_user(request: Request, db: Session = Depends(get_db)):
     token = request.cookies.get("access_token")
     if not token:
-        raise HTTPException(status_code=401, detail="Token not found")
+        raise HTTPException(status_code=401, detail="User Not Logged In.")
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

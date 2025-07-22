@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -44,6 +45,9 @@ const fetchProfiles = async ({ pageParam = 0 }): Promise<Profile[]> => {
 const UserGallery = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const observerRef = useRef<HTMLDivElement | null>(null);
+  const {isAuthenticated} = useAuth();
+
+  
 
   const {
     data,
@@ -78,7 +82,35 @@ const UserGallery = () => {
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  if (isLoading) return <p className="text-center py-10">Loading profiles...</p>;
+  if (isLoading)
+  return (
+    <div className="flex items-center justify-center py-10">
+      <div className="flex items-center space-x-3">
+        <svg
+          className="animate-spin h-5 w-5 text-gray-500"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8z"
+          ></path>
+        </svg>
+        <p className="text-gray-600 text-sm font-medium">Loading profiles...</p>
+      </div>
+    </div>
+  );
+
   if (error) return <p className="text-center py-10 text-red-500">Error loading profiles.</p>;
 
   const allProfiles: Profile[] = data?.pages.flat() ?? [];
