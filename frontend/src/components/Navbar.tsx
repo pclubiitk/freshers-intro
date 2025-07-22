@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import { useRouter, usePathname } from 'next/navigation';
 import { useQueryClientInstance } from '@/contexts/ReactQueryProviderContext';
+import Loading from './Loading';
 
 const Navbar = () => {
   const { theme } = useTheme();
@@ -61,7 +62,7 @@ const Navbar = () => {
     return (
       <nav className="sticky top-0 z-50 w-full px-6 py-4 flex items-center justify-between border-b border-border bg-background text-foreground">
         <div className="flex items-center gap-3 text-2xl font-bold">
-          <span>Loading...</span>
+          <Loading />
         </div>
       </nav>
     );

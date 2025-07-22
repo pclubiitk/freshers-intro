@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import Loading from '@/components/Loading';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function LoginPage() {
       }
     }, [loading_or_not, isAuthenticated, router]);
   
-    if (loading_or_not) return <div>loading...</div>;
+    if (loading_or_not) return <Loading />;
   
   
 

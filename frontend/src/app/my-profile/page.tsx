@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { Knowledge, Profile, User } from '@/utils/types';
 import ProfileCard from '@/components/ProfileCard';
 import { useAuth } from '@/contexts/AuthContext';
+import Loading from '@/components/Loading';
 
 const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
@@ -70,8 +71,19 @@ const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<For
 const AddIntroPage: React.FC = () => {
   const router = useRouter();
   const { theme } = useTheme();
-  const {isAuthenticated} = useAuth();
+  const {isAuthenticated, loading_or_not} = useAuth();
 
+  // authentication check
+  
+  useEffect(() => {
+    if (!loading_or_not && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [loading_or_not, isAuthenticated, router]);
+  
+  
+  
+  
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>('');
@@ -85,38 +97,39 @@ const AddIntroPage: React.FC = () => {
   const [initialProfile,setInitialProfile] = useState<Profile>({
     user:{ username: '', email: '', id: 0, is_verified: false, images: [] }
   }
-  )
-  const [interest, setInterest] = useState<string>('');
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
-  const [knowledge,setKnowledge] = useState<Knowledge[]>([])
-  const [hasLoaded, setHasLoaded] = useState(false);
+)
+
+const [interest, setInterest] = useState<string>('');
+const fileInputRef = useRef<HTMLInputElement | null>(null)
+const [knowledge,setKnowledge] = useState<Knowledge[]>([])
+const [hasLoaded, setHasLoaded] = useState(false);
 
 
 
 
-  useEffect(() => {
-    const savedData = localStorage.getItem('userProfile');
-    const current_step = localStorage.getItem('currentStep');
-    const initial_user =localStorage.getItem('initialProfile');
-    if (savedData && initial_user) {
-      setFormData(JSON.parse(savedData))
-      setInitialProfile(JSON.parse(initial_user))
-    }else{
-      InitialLoad( setFormData, setInitialProfile )
-    }
-
-    if (current_step) setCurrentStep(parseInt(current_step))
-
+useEffect(() => {
+  const savedData = localStorage.getItem('userProfile');
+  const current_step = localStorage.getItem('currentStep');
+  const initial_user =localStorage.getItem('initialProfile');
+  if (savedData && initial_user) {
+    setFormData(JSON.parse(savedData))
+    setInitialProfile(JSON.parse(initial_user))
+  }else{
+    InitialLoad( setFormData, setInitialProfile )
+  }
+  
+  if (current_step) setCurrentStep(parseInt(current_step))
+    
     getKnowledge().then((stored) => {
       if (stored.length > 0) setKnowledge(stored);
     });
-
-
-
+    
+    
+    
     setHasLoaded(true);
   }, []);
-
-
+  
+  
   useEffect(() => {
     if(hasLoaded){
       localStorage.setItem('userProfile', JSON.stringify(formData));
@@ -133,9 +146,10 @@ const AddIntroPage: React.FC = () => {
     }
   }, [initialProfile,hasLoaded]);
 
+    if (loading_or_not) return <Loading />;
 
-
-
+  
+  
   const handleInputChange = (name: keyof FormDataType, value: any) => {
     setFormData((prevData) => {
       const updatedData = { ...prevData, [name]: value };
@@ -264,9 +278,8 @@ const AddIntroPage: React.FC = () => {
         const errorText = await res.text();
         throw new Error(errorText);
       }
-SubmitError
       toast.success('Profile submitted successfully!');
-      await clearKnowledge();SubmitError
+      await clearKnowledge();
       setKnowledge([]);
       localStorage.removeItem('userProfile');
       localStorage.removeItem('currentStep');
@@ -483,7 +496,7 @@ SubmitError
     }
   };
 
-  if (!hasLoaded) return <div>Loading...</div>;
+  if (!hasLoaded) return <Loading />;
 
   return (
 

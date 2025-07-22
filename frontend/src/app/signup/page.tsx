@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Mail, Lock, User } from "lucide-react"; // optional icons
 import { toast } from "sonner";
 import Link from "next/link";
+import Loading from "@/components/Loading";
 
 
 export default function SignupPage() {
@@ -25,7 +26,7 @@ export default function SignupPage() {
       }
     }, [loading_or_not, isAuthenticated, router]);
   
-    if (loading_or_not) return <div>loading...</div>;
+    if (loading_or_not) return <Loading />;
   
   
   const isValidY25Email = (email: string) => {
