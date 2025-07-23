@@ -363,7 +363,7 @@ useEffect(() => {
       </SelectTrigger>
       <SelectContent>
         {Branches.map((year) => (
-          <SelectItem key={year} value={year}>
+          <SelectItem key={year} value  ={year}>
             {year}
           </SelectItem>
         ))}
@@ -457,9 +457,13 @@ useEffect(() => {
                 type="text"
                 value={interest}
                 onChange={(e) => setInterest(e.target.value)}
+                maxLength={20}
                 className={`flex-1 p-2 border ${styles.inputBorder} ${styles.inputBg} ${styles.textColor} rounded`}
                 placeholder="Add custom interest"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                {interest.length}/20
+              </p>
               <button
                 type="button"
                 onClick={() => handleInterestAdd(interest)}

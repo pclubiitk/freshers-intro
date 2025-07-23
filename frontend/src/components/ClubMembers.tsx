@@ -15,39 +15,40 @@ function ProfileCard({ profile }: { profile: Profile }) {
   return (
     <div
       key={profile.user.id}
-      className="group relative bg-gray-100 mx-auto dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 hover:shadow-lg hover:border-indigo-500 max-w-md"
+      className="group relative bg-gray-100 mx-auto dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 hover:shadow-lg hover:border-indigo-500 max-w-md min-h-[15rem]"
     >
-      <Link
-        href={`/profiles/${encodeURIComponent(profile.user.id.toString())}`}
-        className="absolute inset-0 z-10"
-      />
+          <Link
+            href={`/profiles/${encodeURIComponent(profile.user.id.toString())}`}
+            className="absolute inset-0 z-10"
+          />
 
-      <div className="flex flex-col sm:flex-row gap-4 relative z-0">
-        <div className="w-full sm:w-40 aspect-square flex-shrink-0 rounded-lg overflow-hidden">
-          <Swiper
-            modules={[Navigation, Pagination]}
-            navigation
-            pagination={{ clickable: true }}
-            className="w-full h-full"
-          >
-            {(profile.user.images.length > 0
-              ? profile.user.images
-              : [{ image_url: '/images/profile-placeholder.jpg' }]
-            ).map((img, i) => (
-              <SwiperSlide key={i}>
-                <img
-                  src={img.image_url}
-                  alt={`Photo ${i} of ${profile.user.username}`}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  onError={(e) =>
-                    ((e.target as HTMLImageElement).src = '/images/profile-placeholder.jpg')
-                  }
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
+          <div className="flex flex-col sm:flex-row gap-4 relative z-0 min-h-[15rem]">
+            <div className="w-full sm:w-40 aspect-square flex-shrink-0 rounded-lg overflow-hidden">
+              <Swiper
+                modules={[Navigation, Pagination]}
+                navigation
+                pagination={{ clickable: true }}
+                className="w-full h-full"
+              >
+                {(profile.user.images.length > 0
+                  ? profile.user.images
+                  : [{ image_url: '/images/profile-placeholder.jpg' }]
+                ).map((img, i) => (
+                  <SwiperSlide key={i}>
+                    <img
+                      src={img.image_url}
+                      alt={`Photo ${i} of ${profile.user.username}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover"  // Ensures image fills container
+                      onError={(e) =>
+                        ((e.target as HTMLImageElement).src = '/images/profile-placeholder.jpg')
+                      }
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+
 
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex justify-between items-start gap-2 flex-wrap">
@@ -58,9 +59,9 @@ function ProfileCard({ profile }: { profile: Profile }) {
               {profile.user.email.split('@')[0]}
             </span>
           </div>
-
-          
-
+          <p className="text-gray-700 dark:text-gray-300 text-sm mt-2 line-clamp-3">
+            {profile.bio || 'No bio provided.'}
+          </p>
           <div className="flex flex-wrap gap-2 mt-auto pt-2">
             {profile.interests?.length ? (
               profile.interests.slice(0,2).map((interest, i) => (

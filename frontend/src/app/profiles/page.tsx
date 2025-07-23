@@ -176,7 +176,7 @@ const UserGallery = () => {
               </div>
 
               {/* Bio */}
-              <p className="text-gray-700 dark:text-gray-300 text-sm line-clamp-3 mb-3">
+              <p className="text-gray-700 dark:text-gray-300 text-sm line-clamp-3 mb-3 ">
                 {profile.bio || 'No bio provided.'}
               </p>
 

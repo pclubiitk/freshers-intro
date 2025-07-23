@@ -58,7 +58,7 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
               {profile.bio && (
                 <section className="mb-6">
                   <h2 className="text-xl font-semibold mb-2">About</h2>
-                  <p className="dark:text-purple-100 text-sm sm:text-base leading-relaxed bg-purple-800/20 p-4 rounded-xl border border-purple-600">
+                  <p className="dark:text-purple-100 text-sm sm:text-base leading-relaxed bg-purple-800/20 p-4 rounded-xl border border-purple-600 overflow-x ">
                     {profile.bio}
                   </p>
                 </section>
