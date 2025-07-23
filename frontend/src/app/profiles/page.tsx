@@ -141,8 +141,7 @@ const UserGallery = () => {
             <div className="flex flex-col md:flex-row gap-4 relative z-0">
               <div className="w-full md:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden">
                 <Swiper
-                  modules={[Navigation, Pagination]}
-                  navigation
+                  modules={[ Pagination]}
                   pagination={{ clickable: true }}
                   className="w-full h-full custom-swiper"
                 >
