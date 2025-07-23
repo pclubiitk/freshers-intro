@@ -46,7 +46,7 @@ export default function RootLayout({
                 {
                   classNames: {
                     error: '!bg-red-100 !text-red-600',
-                    success: '!bg-white dark:!bg-black !text-zinc-800'
+                    success: '!bg-white dark:!bg-black !text-zinc-800 dark:!text-white'
                   }
                 }
               }/>
