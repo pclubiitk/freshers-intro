@@ -44,6 +44,7 @@ next-env.d.ts
 
 # Ignore Python cache files
 /backend/**/__pycache__/
+/backend/venv
 **/.venv
 **/__pycache__/*
 *.py[cod]

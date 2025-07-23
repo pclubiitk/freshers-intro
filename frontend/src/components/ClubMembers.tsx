@@ -59,13 +59,11 @@ function ProfileCard({ profile }: { profile: Profile }) {
             </span>
           </div>
 
-          <p className="text-gray-700 dark:text-gray-300 text-sm mt-2 line-clamp-3">
-            {profile.bio || 'No bio provided.'}
-          </p>
+          
 
           <div className="flex flex-wrap gap-2 mt-auto pt-2">
             {profile.interests?.length ? (
-              profile.interests.map((interest, i) => (
+              profile.interests.slice(0,2).map((interest, i) => (
                 <span
                   key={i}
                   className="bg-indigo-600 text-white text-xs px-2 py-1 rounded-full"
