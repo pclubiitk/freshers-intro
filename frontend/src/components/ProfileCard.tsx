@@ -54,7 +54,7 @@ const ProfileCard = ({ profile }: { profile: Profile }) => (
           <Badge
             key={interest + i}
             variant="default"
-            className="bg-purple-500 text-white dark:bg-purple-600 px-3 py-1 text-sm rounded-full"
+            className="bg-purple-500 text-white dark:bg-purple-600"
           >
             {interest}
           </Badge>
