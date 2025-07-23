@@ -165,29 +165,35 @@ const UserGallery = () => {
               </div>
 
               <div className="flex-1 flex flex-col">
-                <div className='flex flex-row place-content-between'>
-                  <h2 className="text-xl font-semibold mb-1 group-hover:text-indigo-600 transition-colors">
+              {/* Username + Email Bubble */}
+              <div className="flex flex-row place-content-between items-center">
+                <h2 className="text-xl font-semibold mb-1 group-hover:text-indigo-600 transition-colors">
                   {profile.user.username}
-                  </h2>
-                  <span className='bg-indigo-600 text-white text-sm px-3 py-1 rounded-full'>
-                    {profile.user.email.split('@')[0]}
-                  </span>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 text-sm line-clamp-3 mb-3">
-                  {profile.bio || 'No bio provided.'}
-                </p>
-
-                <div className="flex flex-wrap gap-2 mt-auto">
-                  {profile.interests?.map((interest, i) => (
-                    <span
-                      key={i}
-                      className="bg-indigo-600 text-white text-xs px-2 py-1 rounded-full"
-                    >
-                      {interest}
-                    </span>
-                  )) || <span className="text-sm text-gray-500">No interests listed.</span>}
-                </div>
+                </h2>
+                <span className="inline-flex items-center justify-center bg-indigo-600 text-white text-sm font-medium px-4 py-[2px] rounded-full">
+                  {profile.user.email.split('@')[0]}
+                </span>
               </div>
+
+              {/* Bio */}
+              <p className="text-gray-700 dark:text-gray-300 text-sm line-clamp-3 mb-3">
+                {profile.bio || 'No bio provided.'}
+              </p>
+
+              {/* Interests */}
+              <div className="flex flex-wrap gap-2 mt-auto">
+                {profile.interests?.map((interest, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center justify-center bg-indigo-600 text-white text-xs font-medium px-4 py-[2px] rounded-full"
+                  >
+                    {interest}
+                  </span>
+                )) || (
+                  <span className="text-sm text-gray-500">No interests listed.</span>
+                )}
+              </div>
+            </div>
             </div>
           </div>
         )) : <div className="flex items-center justify-center min-h-[50vh] min-w-[100vw] overflow-hidden mt-10">
