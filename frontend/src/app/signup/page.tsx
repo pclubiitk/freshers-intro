@@ -17,6 +17,7 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [agreedToTnC, setAgreedToTnC] = useState(false);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,6 +42,11 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+if (!agreedToTnC) {
+      toast.error("You must agree to the Privacy Policy to register.");
+      return;
+    }
+
 
     if (!isIITKEmail(email)) {
       toast.error("Only IITK emails are allowed.");
@@ -98,7 +104,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
         className="w-full max-w-md p-8 bg-gray-100 dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-300 dark:border-gray-800 space-y-6 animate-in fade-in duration-700 transition-colors"
       >
         <h2 className="text-3xl font-bold text-center text-black dark:text-white">
-          Create Your IITK Account
+          Create Your Account
         </h2>
 
         {error && (
@@ -146,7 +152,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
     
         <div>
           <label className="text-sm font-medium block mb-1 text-gray-700 dark:text-gray-300">
-            Password
+            New Password
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
@@ -161,6 +167,22 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
             />
           </div>
         </div>
+<div className="flex items-start space-x-2 text-sm text-gray-600 dark:text-gray-400">
+  <input
+    id="privacy"
+    type="checkbox"
+    checked={agreedToTnC}
+    onChange={(e) => setAgreedToTnC(e.target.checked)}
+    className="mt-1"
+  />
+  <label htmlFor="privacy">
+    I agree to the{" "}
+    <Link href="/privacy" className="text-blue-600 hover:underline" target="_blank">
+      Privacy Policy
+    </Link>
+  </label>
+</div>
+
 
         
         <button
