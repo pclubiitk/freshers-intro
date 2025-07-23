@@ -14,7 +14,7 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
     : ['/images/profile-placeholder.jpg'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-900 via-black to-black text-white px-6 py-12">
+    <div className="min-h-screen bg-gradient-to-b bg-fixed dark:bg-black text-black dark:text-white bg-white px-6 py-12">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {/* Image Carousel */}
@@ -23,7 +23,7 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
               modules={[Navigation, Pagination]}
               navigation
               pagination={{ clickable: true }}
-              className="w-full h-[24rem]"
+              className="w-full h-[30vh]"
             >
               {images.map((url, i) => (
                 <SwiperSlide key={i}>
@@ -42,17 +42,17 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
             <div>
               <h1 className="text-4xl font-bold tracking-tight mb-2 flex items-center gap-2">
                 {profile.user.username}
-                {profile.user.is_verified && (
+                {/* {profile.user.is_verified && (
                   <FaCheckCircle className="text-green-400 animate-pulse" title="Verified" />
-                )}
+                )} */}
               </h1>
-              <p className="text-sm text-purple-300 mb-6">@{profile.user.email.split('@')[0]}</p>
+              <p className="text-sm dark:text-purple-300 text-zinc-600 mb-6">@{profile.user.email.split('@')[0]}</p>
 
               {/* About */}
               {profile.bio && (
                 <section className="mb-6">
-                  <h2 className="text-xl font-semibold mb-2">📝 About</h2>
-                  <p className="text-purple-100 leading-relaxed bg-purple-800/20 p-4 rounded-xl border border-purple-600">
+                  <h2 className="text-xl font-semibold mb-2">About</h2>
+                  <p className="dark:text-purple-100 leading-relaxed bg-purple-800/20 p-4 rounded-xl border border-purple-600">
                     {profile.bio}
                   </p>
                 </section>
@@ -60,30 +60,30 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
 
               {/* Details Section */}
               <section className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">📚 Academic Info</h2>
+                <h2 className="text-xl font-semibold mb-2">Academic Info</h2>
                 <ul className="space-y-2">
                   {profile.branch && (
-                    <li className="flex items-center gap-2 text-purple-200">
-                      <FaLayerGroup className="text-purple-400" /> <strong>Branch:</strong> {profile.branch}
+                    <li className="flex items-center gap-2 dark:text-purple-200">
+                      <FaLayerGroup className="dark:text-purple-400 text-black" /> <strong>Branch:</strong> {profile.branch}
                     </li>
                   )}
                   {profile.batch && (
-                    <li className="flex items-center gap-2 text-purple-200">
-                      <FaUserGraduate className="text-purple-400" /> <strong>Batch:</strong> {profile.batch}
+                    <li className="flex items-center gap-2 dark:text-purple-200">
+                      <FaUserGraduate className="dark:text-purple-400 text-black" /> <strong>Batch:</strong> {profile.batch}
                     </li>
                   )}
                   {profile.hostel && (
-                    <li className="flex items-center gap-2 text-purple-200">
-                      <FaBuilding className="text-purple-400" /> <strong>Hostel:</strong> {profile.hostel}
+                    <li className="flex items-center gap-2 dark:text-purple-200">
+                      <FaBuilding className="dark:text-purple-400 text-black" /> <strong>Hostel:</strong> {profile.hostel}
                     </li>
                   )}
                 </ul>
               </section>
 
               {/* Interests */}
-              {profile.interests?.length > 0 && (
+              {Array.isArray(profile.interests) && profile.interests?.length > 0 && (
                 <section>
-                  <h2 className="text-xl font-semibold mb-2">🔥 Interests</h2>
+                  <h2 className="text-xl font-semibold mb-2">My Interests</h2>
                   <div className="flex flex-wrap gap-2">
                     {profile.interests.map((interest, i) => (
                       <span

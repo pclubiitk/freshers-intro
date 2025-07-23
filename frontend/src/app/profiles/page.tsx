@@ -10,6 +10,8 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import Loading from '@/components/Loading';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 // import './swiper-custom.css';
 
 export type Image = { image_url: string };
@@ -43,9 +45,18 @@ const fetchProfiles = async ({ pageParam = 0 }): Promise<Profile[]> => {
 };
 
 const UserGallery = () => {
+    const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const observerRef = useRef<HTMLDivElement | null>(null);
-
+  const { isAuthenticated, loading_or_not } = useAuth();
+    useEffect(() => {
+        if (!loading_or_not && !isAuthenticated) {
+          router.replace('/login');
+        }
+      }, [loading_or_not, isAuthenticated, router]);
+    
+    
+    
   
 
   const {
@@ -98,6 +109,10 @@ const UserGallery = () => {
       profile.user.email.split('@')[0].includes(search)
     );
   });
+      if (loading_or_not) return <Loading />;
+      if (!isAuthenticated) {
+        return null;
+      };
 
   return (
     <div className="min-h-screen bg-background text-foreground py-8 transition-colors duration-300">
@@ -115,7 +130,7 @@ const UserGallery = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredProfiles.length > 0 ? filteredProfiles.map((profile) => (
           <div
             key={profile.user.id}

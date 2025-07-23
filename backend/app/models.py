@@ -12,6 +12,7 @@ class User(Base):
     hashed_password = Column(String)
     is_verified = Column(Boolean, default=False)
     last_verification_sent = Column(DateTime(timezone=True), nullable=True, default=func.now())
+    club_role = Column(String, nullable=True)
 
     profile = relationship("UserProfile", back_populates="user", uselist=False)
     images = relationship("UserImage", back_populates="user")

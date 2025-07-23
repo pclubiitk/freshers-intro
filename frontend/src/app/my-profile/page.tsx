@@ -21,7 +21,6 @@ const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 type FormDataType = {
   bio: string;
   branch: string;
-  batch: string;
   interests: string[];
   hostel: string;
 };
@@ -50,7 +49,6 @@ const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<For
     setFormData({
       bio: json.bio || '',
       branch: json.branch || '',
-      batch: json.batch || '',
       interests: json.interests || [],
       hostel: json.hostel || '',
     });
@@ -90,7 +88,6 @@ const AddIntroPage: React.FC = () => {
   const [formData, setFormData] = useState<FormDataType>({
     bio: '',
     branch: '',
-    batch: '',
     interests: [],
     hostel: '',
   });
@@ -147,7 +144,7 @@ useEffect(() => {
   }, [initialProfile,hasLoaded]);
 
     if (loading_or_not) return <Loading />;
-
+    if (!isAuthenticated) return null;
   
   
   const handleInputChange = (name: keyof FormDataType, value: any) => {
@@ -252,16 +249,14 @@ useEffect(() => {
     setSubmitError('');
 
     try {
-      if ( !formData.bio.trim() || formData.interests.length === 0) {
-        throw new Error('Please complete all required fields');
+      if ( !formData.bio.trim()) {
+        throw new Error('Please enter your bio.');
       }
-
       const uploadedKeys = await uploadImagesToS3();
 
       const payload = {
         bio: formData.bio,
         branch: formData.branch,
-        batch: formData.batch,
         hostel: formData.hostel,
         interests: formData.interests,
         image_keys: uploadedKeys,
@@ -354,73 +349,49 @@ useEffect(() => {
       case 1:
         return (
           <div className="space-y-6">
+<div className="flex flex-col md:flex-row gap-6 w-full">
+  <div className="flex-1 space-y-2">
+    <h3 className={`text-xl font-semibold ${styles.textColor}`}>Branch</h3>
+    <Select
+      value={formData?.branch}
+      onValueChange={(value) => handleInputChange('branch', value)}
+    >
+      <SelectTrigger
+        className={`w-full p-2 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
+      >
+        <SelectValue placeholder="Select your branch" />
+      </SelectTrigger>
+      <SelectContent>
+        {Branches.map((year) => (
+          <SelectItem key={year} value={year}>
+            {year}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
 
-
-
-            <h3 className={`text-xl font-semibold ${styles.textColor}`}>Batch</h3>
-            <Select
-              value={formData?.batch}
-              onValueChange={(value) => {handleInputChange('batch',value)}}
-            >
-              <SelectTrigger
-                className={`w-full p-2 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
-              >
-                <SelectValue placeholder="Select your batch" />
-              </SelectTrigger>
-              <SelectContent>
-                {['Y20', 'Y21', 'Y22', 'Y23', 'Y24', 'Y25'].map((year) => (
-                  <SelectItem key={year} value={year}>
-                    {year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-
-
-
-
-
-
-            <h3 className={`text-xl font-semibold ${styles.textColor}`}>Branch</h3>
-            <Select
-              value={formData?.branch}
-              onValueChange={(value) => {handleInputChange('branch',value)}}
-            >
-              <SelectTrigger
-                className={`w-full p-2 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
-              >
-                <SelectValue placeholder="Select your branch" />
-              </SelectTrigger>
-              <SelectContent>
-                {Branches.map((year) => (
-                  <SelectItem key={year} value={year}>
-                    {year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-
-
-            <h3 className={`text-xl font-semibold ${styles.textColor}`}>Hostel</h3>
-            <Select
-              value={formData?.hostel}
-              onValueChange={(value) => {handleInputChange('hostel',value)}}
-            >
-              <SelectTrigger
-                className={`w-full p-2 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
-              >
-                <SelectValue placeholder="Select your hall" />
-              </SelectTrigger>
-              <SelectContent>
-                {Hostels.map((hall) => (
-                  <SelectItem key={hall} value={hall}>
-                    {hall}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+  <div className="flex-1 space-y-2">
+    <h3 className={`text-xl font-semibold ${styles.textColor}`}>Hostel</h3>
+    <Select
+      value={formData?.hostel}
+      onValueChange={(value) => handleInputChange('hostel', value)}
+    >
+      <SelectTrigger
+        className={`w-full p-2 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
+      >
+        <SelectValue placeholder="Select your hall" />
+      </SelectTrigger>
+      <SelectContent>
+        {Hostels.map((hall) => (
+          <SelectItem key={hall} value={hall}>
+            {hall}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+</div>
 
 
 
@@ -459,7 +430,6 @@ useEffect(() => {
               onChange={(e) => handleInputChange('bio', e.target.value)}
               placeholder="Tell us about yourself"
               className={`w-full p-2 h-40 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
-              required
             />
 
 
@@ -509,7 +479,6 @@ useEffect(() => {
         return (
           <div className={`space-y-4 ${styles.textColor}`}>
             <h2 className="text-2xl font-bold">Review</h2>
-            <p><strong>Batch:</strong> {formData?.batch}</p>
             <p><strong>Branch:</strong> {formData?.branch}</p>
             <p><strong>Bio:</strong> {formData?.bio}</p>
             <p><strong>Hostel:</strong> {formData?.hostel}</p>

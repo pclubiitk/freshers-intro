@@ -1,4 +1,5 @@
 import os
+import re
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
@@ -6,7 +7,7 @@ from app.auth import get_current_user
 from app.models import User, UserProfile, UserImage
 from app.schemas import UserProfileCreate, UserProfileWithUser
 from app.utils.s3 import delete_s3_object
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 
@@ -20,6 +21,7 @@ def create_or_update_profile(
 ):
     # Check if profile exists
     profile = db.query(UserProfile).filter_by(user_id=user.id).first()
+    email = user.email
 
     # Update or create profile
     if profile:
@@ -28,6 +30,12 @@ def create_or_update_profile(
     else:
         profile = UserProfile(user_id=user.id, **profile_data.dict(exclude={"image_keys"}))
         db.add(profile)
+    match = re.search(r"(\d{2})@iitk\.ac\.in$", email)
+    if match:
+        year = match.group(1)
+        profile.batch = f"Y{year}"
+    else:
+        raise HTTPException(400, "Invalid IITK email format")
 
     # Handle image replacement
     if profile_data.image_keys:  # New images are provided
@@ -124,3 +132,22 @@ def get_profile_by_user_id(
         raise HTTPException(status_code=404, detail="Profile not found for given user_id")
 
     return profile
+@router.get("/get-club-members", response_model=List[UserProfileWithUser])
+def get_club_members(
+    role: Optional[str] = Query(None, regex="^(secretary|coordinator)$"),
+    db: Session = Depends(get_db),
+):
+    query = (
+        db.query(UserProfile)
+        .join(User, User.id == UserProfile.user_id)
+        .options(
+            joinedload(UserProfile.user),
+            joinedload(UserProfile.user).joinedload(User.images)
+        )
+    )
+
+    if role:
+        query = query.filter(User.club_role == role)
+
+    profiles = query.order_by(User.username.asc()).all()
+    return profiles

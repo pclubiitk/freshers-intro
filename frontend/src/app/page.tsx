@@ -2,8 +2,45 @@
 
 import Image from "next/image";
 import Link from "next/link";
-
+import { useEffect, useState } from "react";
+import { renderProfiles } from "@/components/ClubMembers";
+const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 export default function Home() {
+  const [secretaries, setSecretaries] = useState([]);
+  const [coordinators, setCoordinators] = useState([]);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      const secRes = await fetch(`${ORIGIN}/profile/get-club-members?role=secretary`);
+      const coordRes = await fetch(`${ORIGIN}/profile/get-club-members?role=coordinator`);
+
+      if (secRes.ok) setSecretaries(await secRes.json());
+      if (coordRes.ok) setCoordinators(await coordRes.json());
+    };
+    fetchMembers();
+  }, []);
+
+  const renderProfileds = (members: any[]) => (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+      {members.map((member) => (
+        <div
+          key={member.user.id}
+          className="rounded-xl border p-4 flex flex-col items-center bg-white dark:bg-zinc-900 shadow hover:shadow-lg transition"
+        >
+          <Image
+            src={member.user.images?.[0]?.image_url || "/images/profile-placeholder.jpg"}
+            alt={member.user.username}
+            width={80}
+            height={80}
+            className="rounded-full object-cover"
+          />
+          <h3 className="font-bold mt-2">{member.user.username}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{member.club_role}</p>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="flex flex-col min-h-screen bg-white text-black dark:bg-black dark:text-white pt-24">
       <main className="flex-grow px-4 sm:px-6">
@@ -45,8 +82,8 @@ export default function Home() {
             </div>
           </div>
 
+          {/* WhatsApp + Video Section */}
           <div className="mt-16 flex flex-col md:flex-row md:items-center justify-between gap-12">
-
             <div className="flex-1 flex flex-col items-center gap-4">
               <Link
                 href="https://chat.whatsapp.com/BYkx1NdoSok3apTAlRc1CE"
@@ -55,7 +92,6 @@ export default function Home() {
               >
                 Join the Y25 Official WhatsApp Group
               </Link>
-
               <div className="flex flex-col items-center md:items-center">
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                   or scan to join:
@@ -71,19 +107,31 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
             <div className="flex-1 w-full">
-  <div className="aspect-[16/9] rounded-lg overflow-hidden shadow-md">
-    <iframe
-      src="https://drive.google.com/file/d/1lTnSYNlWXjJ3tdVIPHNDS855-7ISxt4T/preview"
-      allow="autoplay"
-      allowFullScreen
-      className="w-full h-full"
-    ></iframe>
-  </div>
-</div>
-
+              <div className="aspect-[16/9] rounded-lg overflow-hidden shadow-md">
+                <iframe
+                  src="https://drive.google.com/file/d/1lTnSYNlWXjJ3tdVIPHNDS855-7ISxt4T/preview"
+                  allow="autoplay"
+                  allowFullScreen
+                  className="w-full h-full"
+                ></iframe>
+              </div>
+            </div>
           </div>
+
+          {/* Club Members */}
+          {/* <div className="mt-20">
+            <h2 className="text-3xl font-bold mb-4 text-center">Meet the Coordinators</h2>
+            {renderProfiles(coordinators)}
+          </div>
+          <div className="mt-20">
+            <h2 className="text-3xl font-bold mb-4 text-center">Meet the Secretaries</h2>
+            {renderProfiles(secretaries)}
+          </div> */}
+
+      {renderProfiles(secretaries, coordinators)}
+
+
         </div>
       </main>
 

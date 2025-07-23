@@ -142,7 +142,6 @@ class TokenData(BaseModel):
 class UserProfileCreate(BaseModel):
     bio: Optional[str]
     branch: Optional[str]
-    batch: Optional[str]
     hostel: Optional[str]
     interests: Optional[List[str]]
     image_keys: Optional[List[str]] = []

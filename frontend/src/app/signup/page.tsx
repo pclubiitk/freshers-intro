@@ -98,7 +98,7 @@ if (!agreedToTnC) {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-white dark:bg-black transition-colors duration-300">
+    <main className="overflow-auto pt-[150px] flex inset-0 fixed items-center justify-center bg-white dark:bg-black transition-colors duration-300">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md p-8 bg-gray-100 dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-300 dark:border-gray-800 space-y-6 animate-in fade-in duration-700 transition-colors"

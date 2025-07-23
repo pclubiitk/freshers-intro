@@ -114,7 +114,10 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-white dark:bg-black transition-colors">
+  <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-black transition-colors">
+    {loading_or_not ? (
+      <Loading />
+    ) : (
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md p-8 rounded-2xl shadow-xl backdrop-blur-lg border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 space-y-6 animate-in fade-in duration-700 transition-colors"
@@ -129,7 +132,6 @@ export default function LoginPage() {
           </div>
         )}
 
-       
         <div>
           <label className="text-sm font-medium block mb-1 text-gray-800 dark:text-gray-300">
             Email
@@ -147,7 +149,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Password */}
         <div>
           <label className="text-sm font-medium block mb-1 text-gray-800 dark:text-gray-300">
             Password
@@ -166,7 +167,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-       
         <button
           type="submit"
           disabled={loading}
@@ -182,6 +182,8 @@ export default function LoginPage() {
           </Link>
         </p>
       </form>
-    </main>
-  );
+    )}
+  </div>
+);
+
 }
