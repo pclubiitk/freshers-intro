@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, DateTime, String, Boolean, ForeignKey, JSON, func
+from sqlalchemy import Column, DateTime, String, Boolean, ForeignKey, JSON, func, UniqueConstraint
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -43,3 +43,19 @@ class UserImage(Base):
     user = relationship("User", back_populates="images")
 
 
+class ProfileReport(Base):
+    __tablename__ = "profile_reports"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+
+    reporter_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    reported_profile_id = Column(UUID(as_uuid=True), ForeignKey("user_profiles.user_id"), nullable=False)
+
+    reason = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    __table_args__ = (
+        UniqueConstraint("reporter_id", "reported_profile_id", name="unique_report_per_pair"),
+    )
+
+    reporter = relationship("User", backref="reports_made")
+    reported_profile = relationship("UserProfile", backref="reports_received")

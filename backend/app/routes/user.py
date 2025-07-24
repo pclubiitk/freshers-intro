@@ -148,7 +148,8 @@ def get_me(
     return {
         "email": user.email,
         "username": user.username,
-        "is_verified": user.is_verified
+        "is_verified": user.is_verified,
+        "club_role": user.club_role
     }
 
 @router.post("/logout")
