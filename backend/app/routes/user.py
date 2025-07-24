@@ -16,16 +16,26 @@ RESEND_COOLDOWN = os.getenv("RESEND_COOLDOWN")
 FRONTEND_DOMAIN = os.getenv("FRONTEND_DOMAIN")
 @router.post("/signup")
 async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    email = user.email.lower()
     existing = db.query(models.User).filter(models.User.email == str.lower(user.email)).first()
     if existing:
-        raise HTTPException(status_code=400, detail="User already registered")
-    email = str.lower(user.email)
-    
-    hashed = auth.get_password_hash(user.password)
-    new_user = models.User(username=user.username, email=str.lower(user.email), hashed_password=hashed)
-    db.add(new_user)
+        if existing.is_verified:
+            raise HTTPException(status_code=400, detail="User already registered")
+        else:
+            existing.username = user.username
+            existing.hashed_password = auth.get_password_hash(user.password)
+            existing.last_verification_sent = datetime.now(ist)
+            target_user = existing
+    else:
+        target_user = models.User(
+            username=user.username,
+            email=email,
+            hashed_password=auth.get_password_hash(user.password),
+            last_verification_sent=datetime.now(ist)
+        )
+        db.add(target_user)
     db.commit()
-    db.refresh(new_user)
+    db.refresh(target_user)
 
     # Generate email verification token
     verification_token = auth.create_access_token(
@@ -35,7 +45,7 @@ async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
     try:
         await send_verification_email(user.email, verification_token)
-        new_user.last_verification_sent = datetime.now(ist)
+        target_user.last_verification_sent = datetime.now(ist)
 
         db.commit()
     except Exception as e:
