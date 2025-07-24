@@ -31,9 +31,6 @@ export default function SignupPage() {
     if (loading_or_not) return <Loading />;
   
   
-  const isValidY25Email = (email: string) => {
-  return /^[0-9]{5}@iitk\.ac\.in$/.test(email);
-};
 const isIITKEmail = (email: string) => email.endsWith("@iitk.ac.in");
 
 const getEmailPrefix = (email: string) => email.split("@")[0];
@@ -60,12 +57,12 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
       return;
     }
     
-    // const prefix = getEmailPrefix(email);
+    const prefix = getEmailPrefix(email);
     
-    // if (!prefix.endsWith('25')) {
-    //   toast.error("Only Y25s allowed to register");
-    //   return
-    // }
+    if (!prefix.endsWith('25')) {
+      toast.error("Only Y25s allowed to register");
+      return
+    }
 
     const signupPromise = new Promise<void>(async (resolve, reject) => {
       try {
