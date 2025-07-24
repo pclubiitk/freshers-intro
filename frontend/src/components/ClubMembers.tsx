@@ -15,7 +15,7 @@ function ProfileCard({ profile }: { profile: Profile }) {
   return (
     <div
       key={profile.user.id}
-      className="group relative bg-gray-100 mx-auto dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 hover:shadow-lg hover:border-indigo-500 max-w-md min-h-[15rem]"
+      className="group relative bg-gray-100 mx-auto dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 hover:shadow-lg hover:border-indigo-500 max-w-lg min-h-[15rem]"
     >
           <Link
             href={`/profiles/${encodeURIComponent(profile.user.id.toString())}`}
