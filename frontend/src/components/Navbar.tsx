@@ -42,10 +42,10 @@ const Navbar = () => {
       console.error("Logout failed", err);
     }
   };
-
   const navItems = [
     { label: 'Home', href: '/' },
     { label: 'Browse Profiles', href: '/profiles' },
+    ...(user?.club_role === 'secretary' || user?.club_role === 'coordinator' ? [{label: `Reports`, href: `/profile-reports`}] : []),
     ...(isAuthenticated
       ? [
           { label: `My Profile`, href: '/my-profile' },
@@ -67,6 +67,7 @@ const Navbar = () => {
       </nav>
     );
   }
+  
 
   return (
     <nav
@@ -81,7 +82,7 @@ const Navbar = () => {
             className="w-8 h-8 object-contain"
           />
         </Link>
-        <span className="text-sm md:text-xl">Programming Club IIT Kanpur</span>
+        <Link className="text-sm md:text-xl no-underline dark:hover:text-white hover:text-black" href='/'>Programming Club IIT Kanpur</Link>
       </div>
 
       {/* Desktop Navigation */}

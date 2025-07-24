@@ -95,7 +95,7 @@
 
 
 
-from datetime import date
+from datetime import date, datetime
 from uuid import UUID
 from pydantic import BaseModel, EmailStr, Field, validator
 from typing import List, Optional, Dict
@@ -186,6 +186,23 @@ class UserProfileWithUser(BaseModel):
     hostel: Optional[str]
     interests: Optional[List[str]]
     user: UserOutWithImages
+
+    class Config:
+        orm_mode = True
+
+
+class ProfileReportCreate(BaseModel):
+    reported_profile_id: UUID
+    reason: Optional[str] = None
+
+class ProfileReportOut(BaseModel):
+    id: UUID
+    reporter_id: UUID
+    reported_profile_id: UUID
+    reason: Optional[str]
+    reporter: UserOut
+    reported_profile: UserProfileWithUser
+    created_at: datetime
 
     class Config:
         orm_mode = True

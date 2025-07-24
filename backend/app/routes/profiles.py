@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app.auth import get_current_user
-from app.models import User, UserProfile, UserImage
-from app.schemas import UserProfileCreate, UserProfileWithUser
+from app.models import ProfileReport, User, UserProfile, UserImage
+from app.schemas import ProfileReportCreate, ProfileReportOut, UserProfileCreate, UserProfileWithUser
 from app.utils.s3 import delete_s3_object
 from typing import List, Optional
 from uuid import UUID
@@ -151,3 +151,77 @@ def get_club_members(
 
     profiles = query.order_by(User.username.asc()).all()
     return profiles
+
+from sqlalchemy.exc import IntegrityError
+
+@router.post("/report-profile", response_model=ProfileReportOut)
+def report_profile(
+    report_data: ProfileReportCreate,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user),
+):
+    reported_profile = db.query(UserProfile).filter_by(user_id=report_data.reported_profile_id).first()
+    print(report_data.reported_profile_id)
+    if not reported_profile:
+        raise HTTPException(status_code=404, detail="Profile not found.")
+    if reported_profile.user_id == user.id:
+        raise HTTPException(status_code=401, detail="Why do you want to report yourself?")
+
+    report = ProfileReport(
+        reporter_id=user.id,
+        reported_profile_id=report_data.reported_profile_id,
+        reason=report_data.reason,
+    )
+
+    db.add(report)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="You have already reported this profile.")
+
+    db.refresh(report)
+    return report
+
+@router.get("/get-reports", response_model=List[ProfileReportOut])
+def get_reports(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.club_role not in ["secretary", "coordinator"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden."
+        )
+
+    return db.query(ProfileReport).all()
+
+
+@router.delete("/delete-report/{report_id}")
+def delete_report(report_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    if user.club_role not in ["secretary", "coordinator"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    report = db.query(ProfileReport).filter(ProfileReport.id == report_id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    db.delete(report)
+    db.commit()
+    return {"detail": "Report deleted successfully"}
+
+@router.post("/delete-profile/{profile_id}")
+def delete_profile_and_report(profile_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    if user.club_role not in ["secretary", "coordinator"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    profile = db.query(UserProfile).filter(UserProfile.id == profile_id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    db.query(ProfileReport).filter(ProfileReport.reported_profile_id == profile.user_id).delete(synchronize_session=False)
+
+    db.delete(profile)
+    db.commit()
+
+    return {"detail": "Profile and associated reports deleted successfully"}

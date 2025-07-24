@@ -20,7 +20,7 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
       : ['/images/profile-placeholder.jpg'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b bg-fixed dark:bg-black text-black dark:text-white bg-white px-4 sm:px-8 py-8 sm:py-12 lg:py-16">
+    <div className=" bg-gradient-to-b bg-fixed dark:bg-black text-black dark:text-white bg-white px-4 sm:px-8 py-8 sm:py-12 lg:py-16">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="rounded-3xl overflow-hidden shadow-2xl border border-purple-800 bg-black/20 backdrop-blur-sm">
