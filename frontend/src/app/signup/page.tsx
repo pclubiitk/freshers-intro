@@ -17,6 +17,7 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [agreedToTnC, setAgreedToTnC] = useState(false);
 
   const [error, setError] = useState("");
@@ -42,7 +43,13 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-if (!agreedToTnC) {
+
+    if (password != confirmPassword) {
+      toast.error("Passwords do not match.")
+      return
+    }
+    
+    if (!agreedToTnC) {
       toast.error("You must agree to the Privacy Policy to register.");
       return;
     }
@@ -52,6 +59,7 @@ if (!agreedToTnC) {
       toast.error("Only IITK emails are allowed.");
       return;
     }
+    
     // const prefix = getEmailPrefix(email);
     
     // if (!prefix.endsWith('25')) {
@@ -162,6 +170,23 @@ if (!agreedToTnC) {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="text-sm font-medium block mb-1 text-gray-700 dark:text-gray-300">
+            Confirm New Password
+          </label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               placeholder="••••••••"
             />

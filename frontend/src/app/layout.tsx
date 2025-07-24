@@ -45,7 +45,7 @@ export default function RootLayout({
               <Toaster richColors toastOptions={
                 {
                   classNames: {
-                    error: '!bg-red-100 !text-red-600',
+                    // error: '!bg-red-100 !text-red-600 hover:!text-red-600',
                     success: '!bg-white dark:!bg-black !text-zinc-800 dark:!text-white'
                   }
                 }

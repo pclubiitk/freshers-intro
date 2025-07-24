@@ -147,21 +147,21 @@ const UserGallery = () => {
             <div className="relative">
               <button 
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-1 px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="flex items-center gap-1 px-3 py-2 bg-gray-200 dark:bg-black rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
                 <Filter size={18} />
                 <ChevronDown size={18} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />
               </button>
 
               {showFilters && (
-                <div className="absolute right-0 mt-1 w-64 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 p-3 border border-gray-200 dark:border-gray-700">
+                <div className="absolute right-0 mt-1 w-64 bg-white dark:bg-black rounded-md shadow-lg z-10 p-3 border border-gray-200 dark:border-gray-700">
                   <div className="space-y-3">
                     <div>
                       <label className="block text-sm font-medium mb-1">Branch</label>
                       <select
                         value={selectedBranch}
                         onChange={(e) => setSelectedBranch(e.target.value)}
-                        className="w-full px-2 py-1 text-sm border rounded-md bg-white dark:bg-gray-700"
+                        className="w-full px-2 py-1 text-sm border rounded-md bg-white dark:bg-black"
                       >
                         <option value="">All Branches</option>
                         {branches.map(branch => (
@@ -175,7 +175,7 @@ const UserGallery = () => {
                       <select
                         value={selectedHall}
                         onChange={(e) => setSelectedHall(e.target.value)}
-                        className="w-full px-2 py-1 text-sm border rounded-md bg-white dark:bg-gray-700"
+                        className="w-full px-2 py-1 text-sm border rounded-md bg-white dark:bg-black"
                       >
                         <option value="">All Hostels</option>
                         {halls.map(hostel => (
@@ -189,7 +189,7 @@ const UserGallery = () => {
                       <select
                         value={selectedBatch}
                         onChange={(e) => setSelectedBatch(e.target.value)}
-                        className="w-full px-2 py-1 text-sm border rounded-md bg-white dark:bg-gray-700"
+                        className="w-full px-2 py-1 text-sm border rounded-md bg-white dark:bg-black"
                       >
                         <option value="">All Batches</option>
                         {batches.map(batch => (
