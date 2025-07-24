@@ -29,7 +29,7 @@ async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     else:
         prefix = email.split('@')[0]
         if not prefix.endswith('25'):
-            raise HTTPException(status_code=401, detail="Only Y25s are allowed to register.")
+            raise HTTPException(status_code=403, detail="Only Y25s are allowed to register.")
         
         target_user = models.User(
             username=user.username,
@@ -103,7 +103,7 @@ def login(form: schemas.UserLogin, response: Response, db: Session = Depends(get
 
     response.headers.append(
         "Set-Cookie",
-        f"access_token={token}; Path=/; Secure; Partitioned; SameSite=None; Max-Age=86400"
+        f"access_token={token}; Path=/; Secure; SameSite=None; Domain={FRONTEND_DOMAIN}; Max-Age=86400"
     )
 
     return {"message": "Login successful"}
@@ -172,7 +172,7 @@ def logout(response: Response):
 
     response.headers.append(
         "Set-Cookie",
-        "access_token=; Path=/; Secure; SameSite=None; Partitioned; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+        f"access_token=; Path=/; Secure; SameSite=None;Domain={FRONTEND_DOMAIN} Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
     )
 
 
