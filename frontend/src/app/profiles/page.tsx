@@ -153,53 +153,69 @@ const UserGallery = () => {
                 <ChevronDown size={18} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />
               </button>
 
-              {showFilters && (
-                <div className="absolute right-0 mt-1 w-64 bg-white dark:bg-black rounded-md shadow-lg z-10 p-3 border border-gray-200 dark:border-gray-700">
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Branch</label>
-                      <select
-                        value={selectedBranch}
-                        onChange={(e) => setSelectedBranch(e.target.value)}
-                        className="w-full px-2 py-1 text-sm border rounded-md bg-white dark:bg-black"
-                      >
-                        <option value="">All Branches</option>
-                        {branches.map(branch => (
-                          <option key={branch} value={branch}>{branch}</option>
-                        ))}
-                      </select>
-                    </div>
+        {showFilters && (
+  <div className="fixed inset-0 z-30 flex items-start justify-center px-4 pt-24 sm:pt-32 bg-black/40" onClick={() => setShowFilters(false)}>
+    <div
+      className="bg-white dark:bg-black rounded-lg shadow-xl w-full max-w-md p-4 border border-gray-200 dark:border-gray-700"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h2 className="text-lg font-semibold mb-4">Filter Profiles</h2>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Hostel</label>
-                      <select
-                        value={selectedHall}
-                        onChange={(e) => setSelectedHall(e.target.value)}
-                        className="w-full px-2 py-1 text-sm border rounded-md bg-white dark:bg-black"
-                      >
-                        <option value="">All Hostels</option>
-                        {halls.map(hostel => (
-                          <option key={hostel} value={hostel}>{hostel}</option>
-                        ))}
-                      </select>
-                    </div>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Branch</label>
+          <select
+            value={selectedBranch}
+            onChange={(e) => setSelectedBranch(e.target.value)}
+            className="w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-900"
+          >
+            <option value="">All Branches</option>
+            {branches.map(branch => (
+              <option key={branch} value={branch}>{branch}</option>
+            ))}
+          </select>
+        </div>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Batch</label>
-                      <select
-                        value={selectedBatch}
-                        onChange={(e) => setSelectedBatch(e.target.value)}
-                        className="w-full px-2 py-1 text-sm border rounded-md bg-white dark:bg-black"
-                      >
-                        <option value="">All Batches</option>
-                        {batches.map(batch => (
-                          <option key={batch} value={batch}>{batch}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
+        <div>
+          <label className="block text-sm font-medium mb-1">Hostel</label>
+          <select
+            value={selectedHall}
+            onChange={(e) => setSelectedHall(e.target.value)}
+            className="w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-900"
+          >
+            <option value="">All Hostels</option>
+            {halls.map(hall => (
+              <option key={hall} value={hall}>{hall}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Batch</label>
+          <select
+            value={selectedBatch}
+            onChange={(e) => setSelectedBatch(e.target.value)}
+            className="w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-900"
+          >
+            <option value="">All Batches</option>
+            {batches.map(batch => (
+              <option key={batch} value={batch}>{batch}</option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          onClick={() => setShowFilters(false)}
+          className="w-full py-2 bg-indigo-600 text-white rounded-md mt-4 hover:bg-indigo-700 transition"
+        >
+          Apply Filters
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
             </div>
           </div>
         </div>
