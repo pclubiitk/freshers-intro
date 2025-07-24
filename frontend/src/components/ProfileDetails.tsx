@@ -5,6 +5,12 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { 
+  FaInstagram, 
+  FaLinkedinIn, 
+  FaGithub,
+  FaDiscord 
+} from 'react-icons/fa';
 
 import { Profile } from '@/utils/types';
 import {
@@ -88,6 +94,53 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
                 </ul>
               </section>
 
+                <div className="flex gap-3 mb-3">
+                                {profile.socials?.discord && (
+                                  <a 
+                                    href={`https://discord.com/users/${profile.socials.discord}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-gray-600 hover:text-[#5865F2] dark:text-gray-400 dark:hover:text-[#5865F2] transition-colors"
+                                    aria-label="Discord"
+                                  >
+                                    <FaDiscord size={20} />
+                                  </a>
+                                )}
+                                {profile.socials?.instagram && (
+                                  <a 
+                                    href={`https://instagram.com/${profile.socials.instagram}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-gray-600 hover:text-[#E1306C] dark:text-gray-400 dark:hover:text-[#E1306C] transition-colors"
+                                    aria-label="Instagram"
+                                  >
+                                    <FaInstagram size={20} />
+                                  </a>
+                                )}
+                                {profile.socials?.linkedin && (
+                                  <a 
+                                    href={`https://linkedin.com/in/${profile.socials.linkedin}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-gray-600 hover:text-[#0077B5] dark:text-gray-400 dark:hover:text-[#0077B5] transition-colors"
+                                    aria-label="LinkedIn"
+                                  >
+                                    <FaLinkedinIn size={20} />
+                                  </a>
+                                )}
+                                {profile.socials?.github && (
+                                  <a 
+                                    href={`https://github.com/${profile.socials.github}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                    aria-label="GitHub"
+                                  >
+                                    <FaGithub size={20} />
+                                  </a>
+                                )}
+                              </div>
+
               {/* Interests */}
               {Array.isArray(profile.interests) &&
                 profile.interests.length > 0 && (
@@ -105,6 +158,9 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
                     </div>
                   </section>
                 )}
+
+
+
             </div>
           </div>
         </div>

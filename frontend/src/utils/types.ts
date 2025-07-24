@@ -9,4 +9,10 @@ export type Profile = {
     hostel?: string;
     hobbies?: string[];
     interests?: string[];
+     socials?: {
+    discord?: string;
+    instagram?: string;
+    linkedin?: string;
+    github?: string;
+  };
 };
