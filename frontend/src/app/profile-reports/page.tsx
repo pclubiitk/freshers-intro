@@ -29,7 +29,7 @@ type Report = {
 };
 
 const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
-export const formatToIST = (utcDateStr: string) => {
+const formatToIST = (utcDateStr: string) => {
   const date = new Date(utcDateStr);
   return date.toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
