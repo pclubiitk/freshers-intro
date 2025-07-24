@@ -395,7 +395,7 @@ useEffect(() => {
 
 
 
-            <h3 className={`text-xl font-semibold ${styles.textColor}`}>Upload Photos (max 5)</h3>
+            <h3 className={`text-xl font-semibold ${styles.textColor}`}>Upload new set of Photos (max 5, this will overwrite current photos)</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               {knowledge.map((knowledge, index) => (
                 <div key={index} className="relative aspect-square rounded overflow-hidden shadow-md">

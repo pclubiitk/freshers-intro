@@ -20,26 +20,26 @@ export default function Home() {
     fetchMembers();
   }, []);
 
-  const renderProfileds = (members: any[]) => (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-      {members.map((member) => (
-        <div
-          key={member.user.id}
-          className="rounded-xl border p-4 flex flex-col items-center bg-white dark:bg-zinc-900 shadow hover:shadow-lg transition"
-        >
-          <Image
-            src={member.user.images?.[0]?.image_url || "/images/profile-placeholder.jpg"}
-            alt={member.user.username}
-            width={80}
-            height={80}
-            className="rounded-full object-cover"
-          />
-          <h3 className="font-bold mt-2">{member.user.username}</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">{member.club_role}</p>
-        </div>
-      ))}
-    </div>
-  );
+  // const renderProfileds = (members: any[]) => (
+  //   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+  //     {members.map((member) => (
+  //       <div
+  //         key={member.user.id}
+  //         className="rounded-xl border p-4 flex flex-col items-center bg-white dark:bg-zinc-900 shadow hover:shadow-lg transition"
+  //       >
+  //         <Image
+  //           src={member.user.images?.[0]?.image_url || "/images/profile-placeholder.jpg"}
+  //           alt={member.user.username}
+  //           width={80}
+  //           height={80}
+  //           className="rounded-full object-cover"
+  //         />
+  //         <h3 className="font-bold mt-2">{member.user.username}</h3>
+  //         <p className="text-sm text-gray-600 dark:text-gray-400">{member.club_role}</p>
+  //       </div>
+  //     ))}
+  //   </div>
+  // );
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-black dark:bg-black dark:text-white pt-24">
