@@ -1,5 +1,5 @@
 import type { NextConfig } from "next"
-const ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN
+const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL
 const nextConfig: NextConfig = {
   images: {
     domains: ['freshers-intro-images.s3.eu-north-1.amazonaws.com'],
@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${ORIGIN}/:path*`,
+        destination: `${BACKEND}/:path*`,
       },
     ]
   },
