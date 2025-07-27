@@ -79,7 +79,7 @@ export default function PrivacyPolicyPage() {
         <p className="whitespace-pre-line mb-2">
           For any queries, grievances, or data-related requests, please contact us:
         </p>
-        Email: <span className="text-blue-600 dark:text-blue-400">pclubiitk@gmail.com</span>
+        Email: <span className="text-blue-600 dark:text-blue-400">pclubiitk[at]gmail[dot]com</span>
       </div>
     </main>
   );
