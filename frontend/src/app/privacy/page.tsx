@@ -67,7 +67,7 @@ export default function PrivacyPolicyPage() {
           • Right to Correction: You may request correction of inaccurate or incomplete information.<br/>
           • Right to Erasure/Withdrawal of Consent: You may withdraw consent and request deletion of your personal data at any time.<br/>
           • Right to Grievance Redressal: You may file complaints with us if you believe your data is being misused.
-          All such requests can be made by contacting us at help@pclub.in.
+          All such requests can be made by contacting us at pclubiitk[at]gmail[dot]com.
         </p>
         <hr className="my-8 border-gray-300 dark:border-gray-700" />
         <h2 className="text-xl font-semibold mb-2">Breach Notification</h2>
@@ -79,7 +79,7 @@ export default function PrivacyPolicyPage() {
         <p className="whitespace-pre-line mb-2">
           For any queries, grievances, or data-related requests, please contact us:
         </p>
-        Email: <span className="text-blue-600 dark:text-blue-400">pclubiitk@gmail.com</span>
+        Email: <span className="text-blue-600 dark:text-blue-400">pclubiitk[at]gmail[dot]com</span>
       </div>
     </main>
   );

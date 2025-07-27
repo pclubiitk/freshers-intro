@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/contexts/AuthContext';
-import { Mail, Lock, User } from "lucide-react"; // optional icons
+import { Mail, Lock, Eye, User, EyeOff } from "lucide-react"; // optional icons
 import { toast } from "sonner";
 import Link from "next/link";
 import Loading from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 
 
 export default function SignupPage() {
@@ -19,9 +20,10 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreedToTnC, setAgreedToTnC] = useState(false);
-
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const toggleShowPassword = () => {setShowPassword(!showPassword)};
     useEffect(() => {
       if (!loading_or_not && isAuthenticated) {
         router.replace('/my-profile');
@@ -162,7 +164,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               minLength={6}
               value={password}
@@ -170,6 +172,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
               className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               placeholder="••••••••"
             />
+            {showPassword ? <Eye size={18} type="button" className="absolute right-3 top-1/2 transform -translate-y-1/2" onClick={() => toggleShowPassword()}/> : <EyeOff size={18} type="button" className="absolute right-3 top-1/2 transform -translate-y-1/2" onClick={() => toggleShowPassword()}/>}
           </div>
         </div>
         <div>
@@ -179,7 +182,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               minLength={6}
               value={confirmPassword}
