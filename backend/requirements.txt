@@ -9,3 +9,4 @@ email-validator
 aiosmtplib
 pytz
 boto3
+httpx
