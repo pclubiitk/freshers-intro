@@ -17,7 +17,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 RESEND_COOLDOWN = os.getenv("RESEND_COOLDOWN")
 FRONTEND_DOMAIN = os.getenv("FRONTEND_DOMAIN")
 RECAPTCHA_SECRET = os.getenv("RECAPTCHA_SECRET")
-
+ENV = os.getenv("ENV")
 @router.post("/signup")
 async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     email = user.email.lower()
@@ -32,7 +32,7 @@ async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
             target_user = existing
     else:
         prefix = email.split('@')[0]
-        if not prefix.endswith('25'):
+        if ENV != "staging" and not prefix.endswith('25'):
             raise HTTPException(status_code=403, detail="Only Y25s are allowed to register.")
         
         target_user = models.User(

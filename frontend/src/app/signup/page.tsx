@@ -7,8 +7,8 @@ import { Mail, Lock, Eye, User, EyeOff } from "lucide-react"; // optional icons
 import { toast } from "sonner";
 import Link from "next/link";
 import Loading from "@/components/Loading";
-import { Button } from "@/components/ui/button";
 
+const ENV = process.env.NEXT_PUBLIC_ENV
 
 export default function SignupPage() {
   const { loading_or_not, isAuthenticated } = useAuth();
@@ -60,8 +60,8 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
     }
     
     const prefix = getEmailPrefix(email);
-    
-    if (!prefix.endsWith('25')) {
+    const isStaging = ENV === "staging";
+    if (!isStaging && !prefix.endsWith('25')) {
       toast.error("Only Y25s allowed to register");
       return
     }
