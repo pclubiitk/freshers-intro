@@ -46,3 +46,41 @@ async def send_verification_email(to_email: str, token: str):
         username=SMTP_USER,
         password=SMTP_PASSWORD,
     )
+
+async def send_reset_email(to_email: str, reset_token: str):
+    reset_url = f"{FRONTEND_URL}/reset-password?token={reset_token}"
+
+    message = EmailMessage()
+    message["From"] = formataddr(("Freshers PClub", FROM_EMAIL))
+    message["To"] = to_email
+    message["Subject"] = "Reset Your Password"
+
+    message.set_content(
+        f"You requested a password reset. Click this link to reset your password: {reset_url}\n\n"
+        "This link will expire in 15 minutes."
+        "If you didn't request this, you can safely ignore this email."
+    )
+
+    message.add_alternative(
+        f"""\
+        <html>
+            <body>
+                <p>We received a request to reset your password. This link will expire in 15 minutes.</p>
+                <p><a href="{reset_url}" style="background-color:#007BFF;color:white;
+                padding:10px 20px;text-decoration:none;border-radius:5px;">Reset Password</a></p>
+                <p>If you didn't request this, you can safely ignore this email.</p>
+                <p>Or manually open this link: <a href="{reset_url}">{reset_url}</a></p>
+            </body>
+        </html>
+        """,
+        subtype="html"
+    )
+
+    await aiosmtplib.send(
+        message,
+        hostname=SMTP_HOST,
+        port=SMTP_PORT,
+        start_tls=True,
+        username=SMTP_USER,
+        password=SMTP_PASSWORD,
+    )

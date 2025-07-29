@@ -165,6 +165,12 @@ export default function LoginPage() {
               placeholder="••••••••"
             />
           </div>
+          <span className="text-center text-sm text-gray-600 dark:text-gray-400">
+            Forgot Password?{" "}
+            <Link href="/forgot-password" className="text-blue-600 hover:underline font-medium">
+              Reset
+            </Link>
+          </span>
         </div>
 
         <button
@@ -174,13 +180,15 @@ export default function LoginPage() {
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
-
-        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-blue-600 hover:underline font-medium">
-            Sign up
-          </Link>
-        </p>
+<div className='text-center'>
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="text-blue-600 hover:underline font-medium">
+              Sign up
+            </Link>
+          </p>
+          
+</div>
       </form>
     )}
   </div>

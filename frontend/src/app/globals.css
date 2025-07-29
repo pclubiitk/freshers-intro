@@ -208,3 +208,16 @@
 .swiper-button-prev {
   scale:0.75;
 }
+
+  .recaptcha-wrapper {
+    transform: scale(0.85);
+    transform-origin: top center;
+    width: fit-content;
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .recaptcha-wrapper {
+      transform: scale(1);
+    }
+  }

@@ -206,3 +206,12 @@ class ProfileReportOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+    token: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str

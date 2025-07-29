@@ -1,19 +1,23 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+import secrets
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status, Request
 from fastapi.responses import Response
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from app import models, schemas, auth
-from app.models import User
+from app.models import PasswordResetToken, User
 from app.database import get_db
-from app.utils.email import send_verification_email
+from app.utils.email import send_reset_email, send_verification_email
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 import os
-import pytz
+import pytz, httpx
+from app.auth import pwd_context
 ist = pytz.timezone('Asia/Kolkata')
 router = APIRouter(prefix="/auth", tags=["Auth"])
 RESEND_COOLDOWN = os.getenv("RESEND_COOLDOWN")
 FRONTEND_DOMAIN = os.getenv("FRONTEND_DOMAIN")
+RECAPTCHA_SECRET = os.getenv("RECAPTCHA_SECRET")
+
 @router.post("/signup")
 async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     email = user.email.lower()
@@ -177,3 +181,54 @@ def logout(response: Response):
 
 
     return {"message": "Logged out"}
+
+
+# forgot pass route
+
+@router.post("/forgot-password")
+async def forgot_password (req: schemas.ForgotPasswordRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    async with httpx.AsyncClient() as client:
+        res = await client.post("https://www.google.com/recaptcha/api/siteverify", data={
+            'secret': RECAPTCHA_SECRET,
+            'response': req.token
+        })
+        result = res.json()
+        print(result)
+        if not result.get("success"):
+            raise HTTPException(status_code=400, detail="Failed reCAPTCHA validation")
+
+    
+    user = db.query(User).filter(User.email == req.email).first()
+    if not user:
+        return {"message": "If an account exists, a reset link has been sent."}
+
+    reset_token = secrets.token_urlsafe(32)
+    expires_at = datetime.now() + timedelta(minutes=15)
+
+    tokendata = PasswordResetToken(user_id = user.id, token = reset_token, expires_at = expires_at)
+    db.add(tokendata)
+    background_tasks.add_task(send_reset_email, user.email, reset_token)
+    db.commit()
+    return {"message": "Password reset link sent successfully."}
+
+@router.post('/reset-password')
+async def reset_password (data: schemas.ResetPasswordRequest, db: Session = Depends(get_db)):
+    tokendata = db.query(PasswordResetToken).filter(PasswordResetToken.token == data.token).first()
+    if not tokendata:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    
+    if tokendata.expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+
+    if tokendata.used:
+        raise HTTPException(status_code=400, detail="Token has already been used")
+    
+    user = db.query(User).filter(User.id == tokendata.user_id).first()
+
+    if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+    hashed_password = pwd_context.hash(data.new_password)
+    user.hashed_password = hashed_password
+    tokendata.used = True
+    db.commit()
+    return {"message": "Password reset successful"}
