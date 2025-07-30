@@ -27,6 +27,17 @@ export async function addImages(images: Image_Obj[]) {
   await tx.done;
 }
 
+export async function putImages(images: Image_Obj[]) {
+  const db = await initImgDB();
+  const tx = db.transaction(STORE_NAME, 'readwrite');
+  const store = tx.objectStore(STORE_NAME);
+  await store.clear()
+  for (const image of images) {
+    await store.add(image); // <== directly add object
+  }
+  await tx.done;
+}
+
 export async function clearImages() {
   const db = await initImgDB();
   const tx = db.transaction(STORE_NAME, 'readwrite');

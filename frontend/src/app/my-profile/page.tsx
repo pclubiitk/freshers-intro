@@ -5,7 +5,7 @@ import Step_2_AboutYou from "@/components/profile-form/Step2AboutYou";
 import Step_3_Review from "@/components/profile-form/Step3Review";
 import ProgressStepper from "@/components/ProgressStepper";
 import { fetchImageAsFileAndPreview } from "@/utils/functions";
-import { addImages, clearImages, getImages, initImgDB } from "@/utils/indexedDB";
+import { clearImages, getImages, initImgDB, putImages } from "@/utils/indexedDB";
 import { Image_Obj, User_Profile_Form } from "@/utils/types";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -26,13 +26,13 @@ const InitialImageOrProfileLoad = async (setImages: Dispatch<SetStateAction<Imag
 
   const json = await res.json();
 
-  console.log(json)
-  const image_object_array = await await Promise.all(
+  // console.log(json)
+  const image_object_array = await Promise.all(
     json.user.images.map(({ id, image_url }: { id: string; image_url: string }) =>
       fetchImageAsFileAndPreview(image_url)
     )
   );
-  console.log(image_object_array)
+  // console.log(image_object_array)
   setImages(image_object_array)
   setFormData({
     bio: json.bio || "",
@@ -48,8 +48,7 @@ const InitialImageOrProfileLoad = async (setImages: Dispatch<SetStateAction<Imag
     interests: json.interests || [],
     hostel: json.hostel || "",
   }))
-  await clearImages()
-  await addImages(image_object_array)
+  await putImages(image_object_array)
 }
 
 
@@ -196,10 +195,10 @@ export default function Page() {
         throw new Error(errorText);
       }
       toast.success("Profile submitted successfully!");
-      await clearImages();
-      setImages([]);
       sessionStorage.removeItem("userProfile");
       sessionStorage.removeItem("currentStep");
+      await clearImages();
+      setImages([]);
       router.push("/profiles");
     } catch (err: any) {
       // setSubmitError(err.message || 'Submission failed');
