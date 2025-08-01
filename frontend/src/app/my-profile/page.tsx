@@ -15,21 +15,14 @@ import ProfileCard from '@/components/ProfileCard';
 import { useAuth } from '@/contexts/AuthContext';
 import Loading from '@/components/Loading';
 
-const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
+const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN; //base URL for our backend API in this next application
 
-
-type FormDataType = {
+type FormDataType = { 
   bio: string;
   branch: string;
   interests: string[];
   hostel: string;
 };
-
-
-
-
-
-
 
 const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<FormDataType>>,
   setInitialProfile: React.Dispatch<React.SetStateAction<Profile>>
@@ -61,18 +54,13 @@ const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<For
   }
 };
 
-
-
-
-
+//Fetches existing profile data from the backend and initializes the form state.
 
 const AddIntroPage: React.FC = () => {
   const router = useRouter();
   const { theme } = useTheme();
   const {isAuthenticated, loading_or_not} = useAuth();
-
-  // authentication check
-  
+ 
   useEffect(() => {
     if (!loading_or_not && !isAuthenticated) {
       router.replace('/login');
