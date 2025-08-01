@@ -9,8 +9,9 @@ import {
   FaInstagram, 
   FaLinkedinIn, 
   FaGithub,
-  FaDiscord 
+  FaDiscord, FaCode, FaLaptopCode
 } from 'react-icons/fa';
+import { SiHackerrank } from 'react-icons/si';
 
 import { Profile } from '@/utils/types';
 import {
@@ -102,8 +103,9 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
                                     rel="noopener noreferrer"
                                     className="text-gray-600 hover:text-[#5865F2] dark:text-gray-400 dark:hover:text-[#5865F2] transition-colors"
                                     aria-label="Discord"
+                                    
                                   >
-                                    <FaDiscord size={20} />
+                                    <FaDiscord size={20} color="#5865F2"/>
                                   </a>
                                 )}
                                 {profile.socials?.instagram && (
@@ -114,7 +116,7 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
                                     className="text-gray-600 hover:text-[#E1306C] dark:text-gray-400 dark:hover:text-[#E1306C] transition-colors"
                                     aria-label="Instagram"
                                   >
-                                    <FaInstagram size={20} />
+                                    <FaInstagram size={20} color="#E1306C"/>
                                   </a>
                                 )}
                                 {profile.socials?.linkedin && (
@@ -125,7 +127,7 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
                                     className="text-gray-600 hover:text-[#0077B5] dark:text-gray-400 dark:hover:text-[#0077B5] transition-colors"
                                     aria-label="LinkedIn"
                                   >
-                                    <FaLinkedinIn size={20} />
+                                    <FaLinkedinIn size={20}    color= '#0077B5'/>
                                   </a>
                                 )}
                                 {profile.socials?.github && (
@@ -136,8 +138,52 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
                                     className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
                                     aria-label="GitHub"
                                   >
-                                    <FaGithub size={20} />
+                                    <FaGithub size={20}    color="white" />
                                   </a>
+                                )}
+                                  {profile.socials?.codeforces && (
+                                  <a 
+                                    href={`https://codeforces.com/profile/${profile.socials.codeforces}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-gray-600 hover:text-[#5865F2] dark:text-gray-400 dark:hover:text-[#5865F2] transition-colors"
+                                    aria-label="codeforces"
+                                  >
+                                    <FaCode size={20}    color="#1f8acb"/>
+                                  </a>
+                                )}
+                                {profile.socials?.leetcode && (
+                                  <a 
+                                    href={`https://leetcode.com/${profile.socials.leetcode}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-gray-600 hover:text-[#E1306C] dark:text-gray-400 dark:hover:text-[#E1306C] transition-colors"
+                                    aria-label="leetcode"
+                                  >
+                                    <FaCode size={20} color= '#f89f1b'/>
+                                  </a>
+                                )}
+                                {profile.socials?.hackerrank && (
+                                  <a 
+                                    href={`https://www.hackerrank.com/${profile.socials.hackerrank}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-gray-600 hover:text-[#0077B5] dark:text-gray-400 dark:hover:text-[#0077B5] transition-colors"
+                                    aria-label="hackerrank"
+                                  >
+                                    <SiHackerrank size={20}   color= '#2ec866'/>
+                                  </a>
+                                )}
+                                {profile.socials?.atcoder && (
+                                  <a 
+                                    href={`https://atcoder.jp/users/${profile.socials.atcoder}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                    aria-label="atcoder"
+                                  >
+                                    <FaLaptopCode size={20} color= '#0033cc' />
+                                    </a>
                                 )}
                               </div>
 

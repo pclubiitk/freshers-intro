@@ -24,7 +24,8 @@ def create_or_update_profile(
 
 
     data = profile_data.dict(exclude={"image_keys"})
-    social_links = data.pop("socials", {})
+    social_links = profile_data.socials or {}
+
 
     if profile:
         for attr, value in data.items():
@@ -100,6 +101,7 @@ def get_my_profile(db: Session = Depends(get_db), user: User = Depends(get_curre
     "batch": profile.batch,
     "hostel": profile.hostel,
     "interests": profile.interests,
+    "socials": profile.socials, 
     "user": {
         "id": profile.user.id,
         "username": profile.user.username,

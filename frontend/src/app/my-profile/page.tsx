@@ -69,7 +69,7 @@ const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<For
   }
 };
 
-//Fetches existing profile data from the backend and initializes the form state.
+//thi will fetch existing profile data from the backend and initialize the form state.
 
 const AddIntroPage: React.FC = () => {
   const router = useRouter();
@@ -297,7 +297,7 @@ useEffect(() => {
         body: JSON.stringify(payload),
        
       });
-       console.log(payload)
+       console.log(payload);
 
       if (!res.ok) {
         const errorText = await res.text();

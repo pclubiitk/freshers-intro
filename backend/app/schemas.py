@@ -48,7 +48,7 @@ class UserProfileCreate(BaseModel):
     hostel: Optional[str]
     interests: Optional[List[str]]
     image_keys: Optional[List[str]] = []
-    social_links: Optional[Dict[str, str]] = Field(default_factory=dict)
+    socials: Optional[Dict[str, str]] = Field(default_factory=dict)
 
 class UserImageOut(BaseModel):
     id: UUID
@@ -65,7 +65,8 @@ class UserProfileOut(BaseModel):
     hostel: Optional[str]
     interests: Optional[List[str]]
     images: List[UserImageOut]
-    social_links: Optional[Dict[str, str]]=Field(default_factory=dict)
+    socials: Optional[Dict[str, str]] = Field(default_factory=dict)
+
 
     class Config:
         orm_mode = True
@@ -88,7 +89,7 @@ class UserProfileWithUser(BaseModel):
     hostel: Optional[str]
     interests: Optional[List[str]]
     user: UserOutWithImages
-    social_links: Optional[Dict[str, str]]=Field(default_factory=dict)
+    socials: Optional[Dict[str, str]] = Field(default_factory=dict)
 
     class Config:
         orm_mode = True

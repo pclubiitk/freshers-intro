@@ -17,9 +17,13 @@ export type Profile = {
   hobbies?: string[];
   interests?: string[];
   socials?: {
-    discord?: string;
     instagram?: string;
     linkedin?: string;
+    discord?: string;
     github?: string;
+    codeforces?: string;
+    leetcode?: string;
+    atcoder?: string;
+    hackerrank?: string;
   };
 };
