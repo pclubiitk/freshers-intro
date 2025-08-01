@@ -87,3 +87,24 @@ export async function removeKnowledge(index: number) {
 
   await tx.done;
 }
+
+export async function deleteImageDB(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(DB_NAME);
+
+    request.onsuccess = () => {
+      console.log(`✅ Database "${DB_NAME}" deleted successfully.`);
+      resolve();
+    };
+
+    request.onerror = (event) => {
+      console.error(`❌ Failed to delete database "${DB_NAME}"`, event);
+      reject(event);
+    };
+
+    request.onblocked = () => {
+      console.warn(`⚠️ Deletion of "${DB_NAME}" is blocked. Please close all tabs using it.`);
+    };
+  });
+}
+

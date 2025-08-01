@@ -5,7 +5,7 @@ import Step_2_AboutYou from "@/components/profile-form/Step2AboutYou";
 import Step_3_Review from "@/components/profile-form/Step3Review";
 import ProgressStepper from "@/components/ProgressStepper";
 import { fetchImageAsFileAndPreview } from "@/utils/functions";
-import { clearImages, getImages, initImgDB, putImages } from "@/utils/indexedDB";
+import { deleteImageDB, getImages, initImgDB, putImages } from "@/utils/indexedDB";
 import { Image_Obj, User_Profile_Form } from "@/utils/types";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -14,42 +14,59 @@ import { toast } from "sonner";
 
 const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
-const InitialImageOrProfileLoad = async (setImages: Dispatch<SetStateAction<Image_Obj[]>>, setFormData: Dispatch<SetStateAction<User_Profile_Form>>) => {
+const InitialImageOrProfileLoad = async (
+  setImages: Dispatch<SetStateAction<Image_Obj[]>>,
+  setFormData: Dispatch<SetStateAction<User_Profile_Form>>
+) => {
   await initImgDB();
+
   const res = await fetch(`${BACKEND_ORIGIN}/profile/get-my-profile`, {
     method: "GET",
     credentials: "include",
   });
+
+  if (res.status === 404) {
+    setImages([]);
+    const emptyProfile = {
+      bio: "",
+      branch: "",
+      batch: "",
+      interests: [],
+      hostel: "",
+    };
+    setFormData(emptyProfile);
+    sessionStorage.setItem("updated_profile", JSON.stringify(emptyProfile));
+    await putImages([]);
+    return;
+  }
+
   if (!res.ok) {
-    throw new Error(`Failed to fetch profile: ${res.status}`);
+    console.error(`Failed to fetch profile: ${res.status}`);
+    return;
   }
 
   const json = await res.json();
 
-  // console.log(json)
   const image_object_array = await Promise.all(
     json.user.images.map(({ id, image_url }: { id: string; image_url: string }) =>
       fetchImageAsFileAndPreview(image_url)
     )
   );
-  // console.log(image_object_array)
-  setImages(image_object_array)
-  setFormData({
+
+  setImages(image_object_array);
+
+  const profileData = {
     bio: json.bio || "",
     branch: json.branch || "",
     batch: json.batch || "",
     interests: json.interests || [],
     hostel: json.hostel || "",
-  })
-  sessionStorage.setItem("updated_profile", JSON.stringify({
-    bio: json.bio || "",
-    branch: json.branch || "",
-    batch: json.batch || "",
-    interests: json.interests || [],
-    hostel: json.hostel || "",
-  }))
-  await putImages(image_object_array)
-}
+  };
+
+  setFormData(profileData);
+  sessionStorage.setItem("updated_profile", JSON.stringify(profileData));
+  await putImages(image_object_array);
+};
 
 
 
@@ -146,6 +163,7 @@ export default function Page() {
         keys.push(key);
         toast.success(`${file.name} uploaded`);
       } catch (err) {
+        // if(err=={"detail":})
         toast.error(`Error uploading ${file.name}`);
         console.error(err);
         throw err;
@@ -197,7 +215,7 @@ export default function Page() {
       toast.success("Profile submitted successfully!");
       sessionStorage.removeItem("userProfile");
       sessionStorage.removeItem("currentStep");
-      await clearImages();
+      await deleteImageDB()
       setImages([]);
       router.push("/profiles");
     } catch (err: any) {
