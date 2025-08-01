@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, ChangeEvent, FormEvent } from 'reac
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem,} from '@/components/ui/select';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Branches, Hostels } from '@/utils/constants';
 import ProgressStepper from '@/components/ProgressStepper';
 import InterestTag from '@/components/InterestTag';
@@ -14,14 +14,28 @@ import { Knowledge, Profile, User } from '@/utils/types';
 import ProfileCard from '@/components/ProfileCard';
 import { useAuth } from '@/contexts/AuthContext';
 import Loading from '@/components/Loading';
+import type { JSX } from 'react';
+import { FaInstagram, FaLinkedin, FaDiscord, FaGithub, FaCode, FaLaptopCode } from 'react-icons/fa';
 
-const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN; //base URL for our backend API in this next application
+const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
-type FormDataType = { 
+const SOCIAL_ICONS: Record<string, JSX.Element> = {
+  instagram: <FaInstagram className="inline mr-1" />,
+  linkedin: <FaLinkedin className="inline mr-1" />,
+  discord: <FaDiscord className="inline mr-1" />,
+  github: <FaGithub className="inline mr-1" />,
+  codeforces: <FaCode className="inline mr-1" />,
+  leetcode: <FaCode className="inline mr-1" />,
+  atcoder: <FaLaptopCode className="inline mr-1" />,
+  hackerrank: <FaLaptopCode className="inline mr-1" />,
+};
+
+type FormDataType = {
   bio: string;
   branch: string;
   interests: string[];
   hostel: string;
+socials: Record<string, string>;
 };
 
 const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<FormDataType>>,
@@ -44,6 +58,7 @@ const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<For
       branch: json.branch || '',
       interests: json.interests || [],
       hostel: json.hostel || '',
+       socials: json.socials || {},
     });
 
     setInitialProfile(json)
@@ -73,11 +88,27 @@ const AddIntroPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>('');
-  const [formData, setFormData] = useState<FormDataType>({
+  // const [formData, setFormData] = useState<FormDataType>({
+  //   bio: '',
+  //   branch: '',
+  //   interests: [],
+  //   hostel: '',
+  // });
+    const [formData, setFormData] = useState<FormDataType>({
     bio: '',
     branch: '',
     interests: [],
     hostel: '',
+   socials: {
+    instagram: '',
+    linkedin: '',
+    discord: '',
+    github: '',
+    codeforces: '',
+    leetcode: '',
+    atcoder: '',
+    hackerrank: '',
+  },
   });
   const [initialProfile,setInitialProfile] = useState<Profile>({
     user:{ username: '', email: '', id: 0, is_verified: false, images: [] }
@@ -242,20 +273,31 @@ useEffect(() => {
       }
       const uploadedKeys = await uploadImagesToS3();
 
+      // const payload = {
+      //   bio: formData.bio,
+      //   branch: formData.branch,
+      //   hostel: formData.hostel,
+      //   interests: formData.interests,
+      //   image_keys: uploadedKeys,
+      // };
       const payload = {
-        bio: formData.bio,
-        branch: formData.branch,
-        hostel: formData.hostel,
-        interests: formData.interests,
-        image_keys: uploadedKeys,
-      };
+  bio: formData.bio,
+  branch: formData.branch,
+  hostel: formData.hostel,
+  interests: formData.interests,
+  image_keys: uploadedKeys,
+  socials: formData.socials,
+};
+
 
       const res = await fetch(`${BACKEND_ORIGIN}/profile/create-or-update-profile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(payload),
+       
       });
+       console.log(payload)
 
       if (!res.ok) {
         const errorText = await res.text();
@@ -332,13 +374,13 @@ useEffect(() => {
     buttonSecondary: theme === 'dark' ? 'border-indigo-600 text-indigo-400 hover:bg-gray-800' : 'border-indigo-500 text-indigo-500 hover:bg-indigo-50',
   };
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="space-y-6">
-<div className="flex flex-col md:flex-row gap-6 w-full">
-  <div className="flex-1 space-y-2">
+const renderStep = () => {
+  switch (currentStep) {
+    case 1:
+      return (
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row gap-6 w-full">
+ <div className="flex-1 space-y-2">
     <h3 className={`text-xl font-semibold ${styles.textColor}`}>Branch</h3>
     <Select
       value={formData?.branch}
@@ -405,9 +447,36 @@ useEffect(() => {
               )}
             </div>
             <p className={`text-sm ${styles.secondaryText}`}>{knowledge.length}/5 photos added</p>
+        
+          <h3 className={`text-xl font-semibold ${styles.textColor}`}>Socials</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              'instagram',
+              'linkedin',
+              'discord',
+              'github',
+              'codeforces',
+              'leetcode',
+              'atcoder',
+              'hackerrank',
+            ].map((key) => (
+              <input
+                key={key}
+                type="text"
+                placeholder={`Enter ${key} username${key === 'discord' ? ' (e.g. user#0000)' : ''}`}
+                value={formData.socials?.[key] || ''}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    socials: { ...prev.socials, [key]: e.target.value },
+                  }))
+                }
+                className={`w-full p-2 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
+              />
+            ))}
           </div>
-        );
-
+        </div>
+      );
       case 2:
         return (
           <div className="space-y-6">
@@ -477,7 +546,28 @@ useEffect(() => {
                 <InterestTag key={interest} text={interest} />
               ))}
             </div>
+<p><strong>Social Links:</strong></p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+          {Object.entries(formData.socials).map(([platform, value]) => (
+            <p key={platform} className="text-sm text-gray-800 dark:text-gray-200">
+              {SOCIAL_ICONS[platform] || null}<strong>{platform.charAt(0).toUpperCase() + platform.slice(1)}:</strong> {value}
+            </p>
+          ))}
+        </div>
 
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+          {knowledge.map((knowledge, i) => (
+            <div key={i} className="relative w-full h-32 sm:h-36 md:h-40 rounded overflow-hidden">
+              <Image
+                src={knowledge.preview}
+                alt={`preview-${i}`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
+              />
+            </div>
+          ))}
+        </div>
 
 
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
