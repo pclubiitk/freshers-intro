@@ -152,27 +152,35 @@ const [hasLoaded, setHasLoaded] = useState(false);
 
 
 useEffect(() => {
-  const savedData = localStorage.getItem('userProfile');
-  const current_step = localStorage.getItem('currentStep');
-  const initial_user =localStorage.getItem('initialProfile');
-  if (savedData && initial_user) {
-    setFormData(JSON.parse(savedData))
-    setInitialProfile(JSON.parse(initial_user))
-  }else{
-    InitialLoad( setFormData, setInitialProfile, setImages )
-  }
-  
-  if (current_step) setCurrentStep(parseInt(current_step))
-    
-    getImages().then((stored) => {
+  const tryLoad = async () => {
+    try {
+      const saved = localStorage.getItem('userProfile');
+      const initial = localStorage.getItem('initialProfile');
+      const step = localStorage.getItem('currentStep');
+      const parsedSaved = saved ? JSON.parse(saved) : null;
+      const parsedInitial = initial ? JSON.parse(initial) : null;
+
+      if (parsedSaved?.branch && parsedInitial?.user?.username) {
+        setFormData(parsedSaved);
+        setInitialProfile(parsedInitial);
+      } else {
+        await InitialLoad(setFormData, setInitialProfile, setImages);
+      }
+
+      if (step) setCurrentStep(parseInt(step));
+      const stored = await getImages();
       if (stored.length > 0) setImages(stored);
-    });
-    
-    
-    
-    setHasLoaded(true);
-  }, []);
-  
+    } catch (err) {
+      console.error('Failed to load profile:', err);
+      await InitialLoad(setFormData, setInitialProfile, setImages); // fallback
+    } finally {
+      setHasLoaded(true);
+    }
+  };
+
+  tryLoad();
+}, []);
+
   
   useEffect(() => {
     if (!hasLoaded) return;
@@ -477,7 +485,7 @@ const renderStep = () => {
             <p className={`text-sm ${styles.secondaryText}`}>{images.length}/5 photos added</p>
         
           <h3 className={`text-xl font-semibold ${styles.textColor}`}>Social Handles (Optional)</h3>
-          <div className="grid grid-cols-[0.3fr_0.6fr] gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               'instagram',
               'linkedin',
@@ -488,7 +496,7 @@ const renderStep = () => {
               'atcoder',
               'hackerrank',
             ].map((key) => (
-  <div key={key} className="contents">
+  <div key={key} className="flex flex-col">
     <span className="">{`${key.charAt(0).toUpperCase()+key.slice(1,)}`}</span>
     <input
       type="text"
