@@ -38,5 +38,6 @@ module.exports = {
     },
     plugins: [
         animate, // if you're using `tw-animate-css`
+        require('tailwind-scrollbar')({ nocompatible: true }),
     ],
 };

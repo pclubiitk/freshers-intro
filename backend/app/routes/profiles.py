@@ -44,12 +44,20 @@ def create_or_update_profile(
         raise HTTPException(400, "Invalid IITK email format")
 
     if profile_data.image_keys:
-        old_images = db.query(UserImage).filter_by(user_id=user.id).all()
-        for image in old_images:
-            delete_s3_object(image.image_key)
-            db.delete(image)
+        # Get current image keys from DB
+        existing_images = db.query(UserImage).filter_by(user_id=user.id).all()
+        existing_keys = set(img.image_key for img in existing_images)
+        new_keys = set(profile_data.image_keys)
 
-        for key in profile_data.image_keys:
+        # Keys to delete (removed by user)
+        keys_to_delete = existing_keys - new_keys
+        for key in keys_to_delete:
+            delete_s3_object(key)
+            db.query(UserImage).filter_by(user_id=user.id, image_key=key).delete()
+
+        # Keys to add (newly uploaded)
+        keys_to_add = new_keys - existing_keys
+        for key in keys_to_add:
             image_url = f"https://{os.getenv('AWS_S3_BUCKET')}.s3.{os.getenv('AWS_REGION')}.amazonaws.com/{key}"
             db.add(UserImage(user_id=user.id, image_key=key, image_url=image_url))
 

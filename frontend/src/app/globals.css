@@ -99,6 +99,10 @@
     animation: gradientShift 8s ease infinite;
     background-size: 200% 200%;
   }
+  .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+    }
 
   @keyframes gradientShift {
     0% {

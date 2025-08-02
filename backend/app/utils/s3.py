@@ -21,7 +21,7 @@ s3_client = boto3.client(
 )
 
 
-def generate_presigned_post(key: str, expires_in: int = 3600):
+def generate_presigned_post(key: str, type:str , expires_in: int = 3600):
     """
     Generate a presigned POST URL for direct upload to S3 from the frontend.
     :param key: S3 object key (e.g. "user-profiles/123/photo1.jpg")
@@ -33,12 +33,12 @@ def generate_presigned_post(key: str, expires_in: int = 3600):
             Bucket=S3_BUCKET,
             Key=key,
             Fields={
-                "Content-Type": "image/jpeg",  # or "image/png" depending on file
+                "Content-Type": type,
                 "Content-Disposition": "inline"  # optional, forces view not download
             },
             Conditions=[
                 ["content-length-range", 0, 10 * 1024 * 1024],
-                {"Content-Type": "image/jpeg"},
+                ["starts-with", "$Content-Type", "image/"],
                 {"Content-Disposition": "inline"}
             ],
             ExpiresIn=expires_in

@@ -149,7 +149,7 @@ const filteredProfiles = allProfiles.filter((profile) => {
             <div className="relative">
               <button 
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-1 px-3 py-2 bg-gray-200 dark:bg-black rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="flex h-[100%] items-center gap-1 px-3 py-2 bg-gray-200 dark:bg-black rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
                 <Filter size={18} />
                 <ChevronDown size={18} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />

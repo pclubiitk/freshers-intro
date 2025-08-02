@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useRef, useEffect, ChangeEvent, FormEvent, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
@@ -8,14 +8,15 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Branches, Hostels } from '@/utils/constants';
 import ProgressStepper from '@/components/ProgressStepper';
 import InterestTag from '@/components/InterestTag';
-import { getKnowledge, addKnowledge, removeKnowledge, clearKnowledge } from '@/utils/indexedDB';
+import { getImages, addImages, removeKnowledge, clearImages, putImages,  } from '@/utils/indexedDB';
 import Image from 'next/image';
 import { Knowledge, Profile, User } from '@/utils/types';
 import ProfileCard from '@/components/ProfileCard';
 import { useAuth } from '@/contexts/AuthContext';
 import Loading from '@/components/Loading';
-import type { JSX } from 'react';
+import type { Dispatch, JSX, SetStateAction } from 'react';
 import { FaInstagram, FaLinkedin, FaDiscord, FaGithub, FaCode, FaLaptopCode } from 'react-icons/fa';
+import { fetchImageAsFileAndPreview } from '@/utils/functions';
 
 const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
@@ -39,13 +40,30 @@ socials: Record<string, string>;
 };
 
 const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<FormDataType>>,
-  setInitialProfile: React.Dispatch<React.SetStateAction<Profile>>
+  setInitialProfile: React.Dispatch<React.SetStateAction<Profile>>,
+  setImages: Dispatch<SetStateAction<Knowledge[]>>,
  ) => {
   try {
     const res = await fetch(`${BACKEND_ORIGIN}/profile/get-my-profile`, {
       method: 'GET',
       credentials: 'include',
     });
+    if (res.status === 404) {
+    setImages([]);
+    const emptyProfile = {
+      bio: "",
+      branch: "",
+      batch: "",
+      interests: [],
+      hostel: "",
+      socials: {"": ""}
+    };
+    setFormData(emptyProfile);
+    sessionStorage.setItem("updated_profile", JSON.stringify(emptyProfile));
+    await putImages([]);
+    return;
+  }
+    
 
     if (!res.ok) {
       throw new Error(`Failed to fetch profile: ${res.status}`);
@@ -53,17 +71,27 @@ const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<For
 
     const json = await res.json();
 
-    setFormData({
+    
+    const image_object_array = await Promise.all(
+    json.user.images.map(({ id, image_url }: { id: string; image_url: string }) =>
+      fetchImageAsFileAndPreview(image_url)
+    )
+  );
+
+  setImages(image_object_array);
+
+    const profileData = {
       bio: json.bio || '',
       branch: json.branch || '',
       interests: json.interests || [],
       hostel: json.hostel || '',
-       socials: json.socials || {},
-    });
-
+      socials: json.socials || {},
+    }
+    setFormData(profileData);
     setInitialProfile(json)
+    sessionStorage.setItem("updated_profile", JSON.stringify(profileData));
+  await putImages(image_object_array);
 
-    console.log(json)
   } catch (err) {
     console.error('Initial load error:', err);
   }
@@ -117,7 +145,7 @@ const AddIntroPage: React.FC = () => {
 
 const [interest, setInterest] = useState<string>('');
 const fileInputRef = useRef<HTMLInputElement | null>(null)
-const [knowledge,setKnowledge] = useState<Knowledge[]>([])
+const [images, setImages] = useState<Knowledge[]>([]);
 const [hasLoaded, setHasLoaded] = useState(false);
 
 
@@ -131,13 +159,13 @@ useEffect(() => {
     setFormData(JSON.parse(savedData))
     setInitialProfile(JSON.parse(initial_user))
   }else{
-    InitialLoad( setFormData, setInitialProfile )
+    InitialLoad( setFormData, setInitialProfile, setImages )
   }
   
   if (current_step) setCurrentStep(parseInt(current_step))
     
-    getKnowledge().then((stored) => {
-      if (stored.length > 0) setKnowledge(stored);
+    getImages().then((stored) => {
+      if (stored.length > 0) setImages(stored);
     });
     
     
@@ -147,20 +175,22 @@ useEffect(() => {
   
   
   useEffect(() => {
-    if(hasLoaded){
+    if (!hasLoaded) return;
+    const timeout = setTimeout(() => {
       localStorage.setItem('userProfile', JSON.stringify(formData));
-    }
-  }, [formData,hasLoaded]);
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [formData, hasLoaded]);
+
   useEffect(() => {
-    if(hasLoaded){
-      localStorage.setItem('currentStep', currentStep.toString());
-    }
-  }, [currentStep,hasLoaded]);
+    if (!hasLoaded) return;
+    localStorage.setItem('currentStep', currentStep.toString());
+  }, [currentStep, hasLoaded]);
+
   useEffect(() => {
-    if(hasLoaded){
-      localStorage.setItem('initialProfile', JSON.stringify(initialProfile));
-    }
-  }, [initialProfile,hasLoaded]);
+    if (!hasLoaded) return;
+    localStorage.setItem('initialProfile', JSON.stringify(initialProfile));
+  }, [initialProfile, hasLoaded]);
 
     if (loading_or_not) return <Loading />;
     if (!isAuthenticated) return null;
@@ -178,7 +208,7 @@ useEffect(() => {
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
-    const remainingSlots = 5 - knowledge.length;
+    const remainingSlots = 5 - images.length;
     const newFiles = files.slice(0, remainingSlots);
     if (!newFiles.length) return;
 
@@ -191,16 +221,16 @@ useEffect(() => {
     });
 
     Promise.all(readers).then(async (results) => {
-        await addKnowledge(results);
-        const updatedKnowledge = [...knowledge, ...results];
-        setKnowledge(updatedKnowledge);
+        await addImages(results);
+        const updatedKnowledge = [...images, ...results];
+        setImages(updatedKnowledge);
     });
   };
 
   const removePhoto = async (index: number) => {
     await removeKnowledge(index);
-    const updated = knowledge.filter((_, i) => i !== index);
-    setKnowledge(updated);
+    const updated = images.filter((_, i) => i !== index);
+    setImages(updated);
   };
 
   const handleInterestAdd = (interest: string) => {
@@ -227,9 +257,9 @@ useEffect(() => {
 
   const uploadImagesToS3 = async (): Promise<string[]> => {
     const keys: string[] = [];
-    for (const {file} of knowledge) {
+    for (const {file} of images) {
       try {
-        const presignRes = await fetch(`${BACKEND_ORIGIN}/s3/presign?filename=${file.name}`, {
+        const presignRes = await fetch(`${BACKEND_ORIGIN}/s3/presign?filename=${file.name}&type=${file.type}`, {
           credentials: 'include',
         });
 
@@ -297,15 +327,14 @@ useEffect(() => {
         body: JSON.stringify(payload),
        
       });
-       console.log(payload);
 
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText);
       }
       toast.success('Profile submitted successfully!');
-      await clearKnowledge();
-      setKnowledge([]);
+      await clearImages();
+      setImages([]);
       localStorage.removeItem('userProfile');
       localStorage.removeItem('currentStep');
       router.push('/profiles');
@@ -373,7 +402,6 @@ useEffect(() => {
     buttonPrimary: theme === 'dark' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-500 hover:bg-indigo-600',
     buttonSecondary: theme === 'dark' ? 'border-indigo-600 text-indigo-400 hover:bg-gray-800' : 'border-indigo-500 text-indigo-500 hover:bg-indigo-50',
   };
-console.log(formData.socials)
 const renderStep = () => {
   switch (currentStep) {
     case 1:
@@ -425,11 +453,11 @@ const renderStep = () => {
 
 
 
-            <h3 className={`text-xl font-semibold ${styles.textColor}`}>Upload new set of Photos (max 5, this will overwrite current photos)</h3>
+            <h3 className={`text-xl font-semibold ${styles.textColor}`}>Your images</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-              {knowledge.map((knowledge, index) => (
+              {images.map((images, index) => (
                 <div key={index} className="relative aspect-square rounded overflow-hidden shadow-md">
-                  <Image src={knowledge.preview} alt={`Preview ${index}`} fill className="object-cover w-full h-full" />
+                  <Image src={images.preview} title={`Preview ${index}`} alt={`Preview ${index}`} fill className="object-cover w-full h-full" />
                   <button
                     type="button"
                     onClick={() => removePhoto(index)}
@@ -439,16 +467,16 @@ const renderStep = () => {
                   </button>
                 </div>
               ))}
-              {knowledge.length < 5 && (
+              {images.length < 5 && (
                 <label className="flex items-center justify-center aspect-square border-2 border-dashed text-indigo-500 rounded cursor-pointer">
                   <span>+</span>
                   <input type="file" multiple accept="image/*" onChange={handleImageUpload} ref={fileInputRef} className="hidden" />
                 </label>
               )}
             </div>
-            <p className={`text-sm ${styles.secondaryText}`}>{knowledge.length}/5 photos added</p>
+            <p className={`text-sm ${styles.secondaryText}`}>{images.length}/5 photos added</p>
         
-          <h3 className={`text-xl font-semibold ${styles.textColor}`}>Socials (Public)</h3>
+          <h3 className={`text-xl font-semibold ${styles.textColor}`}>Social Handles (Optional)</h3>
           <div className="grid grid-cols-[0.3fr_0.6fr] gap-4">
             {[
               'instagram',
@@ -566,10 +594,10 @@ const renderStep = () => {
 
         </div>
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-            {knowledge.map((knowledge, i) => (
+            {images.map((images, i) => (
               <div key={i} className="relative w-full h-32 sm:h-36 md:h-40 rounded overflow-hidden">
                 <Image
-                  src={knowledge.preview}
+                  src={images.preview}
                   alt={`preview-${i}`}
                   fill
                   className="object-cover"
@@ -587,11 +615,13 @@ const renderStep = () => {
 
   return (
 
-    <div className={`min-h-screen ${styles.background} p-6 flex flex-col lg:flex-row items-center gap-10`}>
+    <div className={`min-h-screen ${styles.background} fixed inset-0 mt-20 p-6 flex flex-col lg:flex-row gap-10`}>
 
-      <ProfileCard profile={initialProfile} />
+      <div className='flex h-fit'>
+        <ProfileCard profile={initialProfile} />
+      </div>
 
-      <div className='w-full max-w-6xl mx-auto bg-background-100 dark:bg-background-900 rounded-2xl shadow-lg border border-border-300 dark:border-border-700 p-4 transition-all duration-300 items-center'>
+      <div className='overflow-y-auto no-scrollbar mb-20 w-full max-w-6xl mx-auto bg-background-100 dark:bg-background-900 rounded-2xl shadow-lg border border-border-300 dark:border-border-700 dark:border-zinc-500 p-4 transition-all duration-300 items-center'>
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-blue-500 to-cyan-400 mb-6">
           Your Profile
         </h1>
