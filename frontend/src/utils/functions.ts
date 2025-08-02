@@ -60,12 +60,13 @@ export const fileToBase64 = (file: File): Promise<string> =>
 
 
 export async function fetchImageAsFileAndPreview(url: string): Promise<{ file: File, preview: string }> {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      method: "GET"
+    });
     const blob = await response.blob();
 
     // Get original filename from URL if needed
-    const filename = url.split("/").pop()?.split("---")[0]?.split("?")[0] || "image.jpg";
-
+    const filename = url.split("/").pop() || "image.jpg";
     // Convert blob to base64 for preview
     const preview = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();

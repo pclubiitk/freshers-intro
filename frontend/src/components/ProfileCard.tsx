@@ -9,7 +9,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import { Profile } from '@/utils/types';
 import { SiHackerrank } from 'react-icons/si';
-
+import Image from 'next/image';
 type Props = {
   profile: Profile;
 };
@@ -43,13 +43,13 @@ const ProfileCard: React.FC<Props> = ({ profile }) => {
     {
       key: 'codeforces',
       url: (value: string) => `https://codeforces.com/profile/${value}`,
-      icon: <FaCode size={20} />,
+      icon: <Image src='/icons8-codeforces-24.png' className="hover:scale-130" width={20} height={20} alt={''}/>,
       color: '#1f8acb',
     },
     {
       key: 'leetcode',
       url: (value: string) => `https://leetcode.com/${value}`,
-      icon: <FaCode size={20} />,
+      icon: <Image src='/icons8-leetcode-24.png' className="hover:scale-130" width={20} height={20} alt={''}/>,
       color: '#f89f1b',
     },
     {

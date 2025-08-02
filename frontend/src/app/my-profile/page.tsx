@@ -17,6 +17,7 @@ import Loading from '@/components/Loading';
 import type { Dispatch, JSX, SetStateAction } from 'react';
 import { FaInstagram, FaLinkedin, FaDiscord, FaGithub, FaCode, FaLaptopCode } from 'react-icons/fa';
 import { fetchImageAsFileAndPreview } from '@/utils/functions';
+import { SiHackerrank } from 'react-icons/si';
 
 const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
@@ -25,10 +26,10 @@ const SOCIAL_ICONS: Record<string, JSX.Element> = {
   linkedin: <FaLinkedin className="inline mr-1" />,
   discord: <FaDiscord className="inline mr-1" />,
   github: <FaGithub className="inline mr-1" />,
-  codeforces: <FaCode className="inline mr-1" />,
-  leetcode: <FaCode className="inline mr-1" />,
+  codeforces: <Image src='/icons8-codeforces-24.png' className="hover:scale-130" width={24} height={24} alt={''}/>,
+  leetcode: <Image src='/icons8-leetcode-24.png' className="hover:scale-130" width={24} height={24} alt={''}/>,
   atcoder: <FaLaptopCode className="inline mr-1" />,
-  hackerrank: <FaLaptopCode className="inline mr-1" />,
+  hackerrank: <SiHackerrank className="inline mr-1" />,
 };
 
 type FormDataType = {
@@ -39,65 +40,116 @@ type FormDataType = {
 socials: Record<string, string>;
 };
 
-const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<FormDataType>>,
+const InitialLoad = async (
+  setFormData: React.Dispatch<React.SetStateAction<FormDataType>>,
   setInitialProfile: React.Dispatch<React.SetStateAction<Profile>>,
-  setImages: Dispatch<SetStateAction<Knowledge[]>>,
- ) => {
+  setImages: Dispatch<SetStateAction<Knowledge[]>>
+) => {
   try {
     const res = await fetch(`${BACKEND_ORIGIN}/profile/get-my-profile`, {
       method: 'GET',
       credentials: 'include',
     });
-    if (res.status === 404) {
-    setImages([]);
-    const emptyProfile = {
-      bio: "",
-      branch: "",
-      batch: "",
-      interests: [],
-      hostel: "",
-      socials: {"": ""}
-    };
-    setFormData(emptyProfile);
-    sessionStorage.setItem("updated_profile", JSON.stringify(emptyProfile));
-    await putImages([]);
-    return;
-  }
-    
 
-    if (!res.ok) {
-      throw new Error(`Failed to fetch profile: ${res.status}`);
+    if (res.status === 404) {
+      const emptyProfile: Profile = {
+        user: { username: '', email: '', id: 0, is_verified: false, images: [] },
+        bio: '',
+        branch: '',
+        batch: '',
+        interests: [],
+        hostel: '',
+        socials: {},
+      };
+      setFormData({
+        bio: '',
+        branch: '',
+        interests: [],
+        hostel: '',
+        socials: {
+          instagram: '',
+          linkedin: '',
+          discord: '',
+          github: '',
+          codeforces: '',
+          leetcode: '',
+          atcoder: '',
+          hackerrank: '',
+        },
+      });
+      setInitialProfile(emptyProfile);
+      setImages([]);
+      sessionStorage.setItem('updated_profile', JSON.stringify(emptyProfile));
+      await putImages([]);
+      return;
     }
+
+    if (!res.ok) throw new Error(`Failed to fetch profile: ${res.status}`);
 
     const json = await res.json();
 
-    
-    const image_object_array = await Promise.all(
-    json.user.images.map(({ id, image_url }: { id: string; image_url: string }) =>
-      fetchImageAsFileAndPreview(image_url)
-    )
-  );
+    let image_object_array: Knowledge[] = [];
 
-  setImages(image_object_array);
+    try {
+      const rawImages = Array.isArray(json.user?.images) ? json.user.images : [];
+      image_object_array = await Promise.all(
+        rawImages.map(({ image_url }: { id: string; image_url: string }) =>
+          fetchImageAsFileAndPreview(image_url)
+        )
+      );
+    } catch (imgErr) {
+      console.warn('Image fetch failed:', imgErr);
+    }
 
-    const profileData = {
+    const profileData: FormDataType = {
       bio: json.bio || '',
       branch: json.branch || '',
       interests: json.interests || [],
       hostel: json.hostel || '',
-      socials: json.socials || {},
-    }
-    setFormData(profileData);
-    setInitialProfile(json)
-    sessionStorage.setItem("updated_profile", JSON.stringify(profileData));
-  await putImages(image_object_array);
+      socials: json.socials || {
+        instagram: '',
+        linkedin: '',
+        discord: '',
+        github: '',
+        codeforces: '',
+        leetcode: '',
+        atcoder: '',
+        hackerrank: '',
+      },
+    };
 
+    setFormData(profileData);
+    setInitialProfile(json);
+    setImages(image_object_array);
+
+    await putImages(image_object_array);
   } catch (err) {
-    console.error('Initial load error:', err);
+    console.error('InitialLoad failed:', err);
+
+    setFormData({
+      bio: '',
+      branch: '',
+      interests: [],
+      hostel: '',
+      socials: {
+        instagram: '',
+        linkedin: '',
+        discord: '',
+        github: '',
+        codeforces: '',
+        leetcode: '',
+        atcoder: '',
+        hackerrank: '',
+      },
+    });
+    setInitialProfile({
+      user: { username: '', email: '', id: 0, is_verified: false, images: [] },
+    });
+    setImages([]);
   }
 };
 
-//thi will fetch existing profile data from the backend and initialize the form state.
+
 
 const AddIntroPage: React.FC = () => {
   const router = useRouter();
@@ -149,30 +201,32 @@ const [images, setImages] = useState<Knowledge[]>([]);
 const [hasLoaded, setHasLoaded] = useState(false);
 
 
-
-
 useEffect(() => {
   const tryLoad = async () => {
     try {
+      // const savedProfile = localStorage.getItem('userProfile');
+      // const savedInitial = localStorage.getItem('initialProfile');
+      // const savedStep = localStorage.getItem('currentStep');
+      
+      // const parsedSaved = savedProfile ? JSON.parse(savedProfile) : null;
+      // const parsedInitial = savedInitial ? JSON.parse(savedInitial) : null;
       await InitialLoad(setFormData, setInitialProfile, setImages);
-      const saved = localStorage.getItem('userProfile');
-      const initial = localStorage.getItem('initialProfile');
-      const step = localStorage.getItem('currentStep');
-      const parsedSaved = saved ? JSON.parse(saved) : null;
-      const parsedInitial = initial ? JSON.parse(initial) : null;
 
-      if (parsedSaved?.branch && parsedInitial?.user?.username) {
-        setFormData(parsedSaved);
-        setInitialProfile(parsedInitial);
-      } else {
-        await InitialLoad(setFormData, setInitialProfile, setImages);
-      }
-      if (step) setCurrentStep(parseInt(step));
-      const stored = await getImages();
-      if (stored.length > 0) setImages(stored);
+      // if (parsedSaved?.branch && parsedInitial?.user?.username) {
+      //   console.log("Restoring profile from a previous session.");
+      //   setFormData(parsedSaved);
+      //   setInitialProfile(parsedInitial);
+        
+      //   if (savedStep) setCurrentStep(parseInt(savedStep));
+      //   const storedImages = await getImages();
+      //   if (storedImages.length > 0) setImages(storedImages);
+        
+      // } else {
+      //   await InitialLoad(setFormData, setInitialProfile, setImages);
+      // }
     } catch (err) {
       console.error('Failed to load profile:', err);
-      await InitialLoad(setFormData, setInitialProfile, setImages); // fallback
+      await InitialLoad(setFormData, setInitialProfile, setImages);
     } finally {
       setHasLoaded(true);
     }
@@ -180,25 +234,24 @@ useEffect(() => {
 
   tryLoad();
 }, []);
-
   
-  useEffect(() => {
-    if (!hasLoaded) return;
-    const timeout = setTimeout(() => {
-      localStorage.setItem('userProfile', JSON.stringify(formData));
-    }, 400);
-    return () => clearTimeout(timeout);
-  }, [formData, hasLoaded]);
+  // useEffect(() => {
+  //   if (!hasLoaded) return;
+  //   const timeout = setTimeout(() => {
+  //     localStorage.setItem('userProfile', JSON.stringify(formData));
+  //   }, 400);
+  //   return () => clearTimeout(timeout);
+  // }, [formData, hasLoaded]);
 
-  useEffect(() => {
-    if (!hasLoaded) return;
-    localStorage.setItem('currentStep', currentStep.toString());
-  }, [currentStep, hasLoaded]);
+  // useEffect(() => {
+  //   if (!hasLoaded) return;
+  //   localStorage.setItem('currentStep', currentStep.toString());
+  // }, [currentStep, hasLoaded]);
 
-  useEffect(() => {
-    if (!hasLoaded) return;
-    localStorage.setItem('initialProfile', JSON.stringify(initialProfile));
-  }, [initialProfile, hasLoaded]);
+  // useEffect(() => {
+  //   if (!hasLoaded) return;
+  //   localStorage.setItem('initialProfile', JSON.stringify(initialProfile));
+  // }, [initialProfile, hasLoaded]);
 
     if (loading_or_not) return <Loading />;
     if (!isAuthenticated) return null;
@@ -249,7 +302,7 @@ useEffect(() => {
       };
       setFormData(updated);
       toast.success("Interest added");
-      localStorage.setItem('userProfile', JSON.stringify(updated));
+      // localStorage.setItem('userProfile', JSON.stringify(updated));
     }
     setInterest('')
   };
@@ -260,7 +313,7 @@ useEffect(() => {
       interests: formData.interests.filter((i) => i !== interest),
     };
     setFormData(updated);
-    localStorage.setItem('userProfile', JSON.stringify(updated));
+    // localStorage.setItem('userProfile', JSON.stringify(updated));
   };
 
   const uploadImagesToS3 = async (): Promise<string[]> => {
@@ -343,8 +396,8 @@ useEffect(() => {
       toast.success('Profile submitted successfully!');
       await clearImages();
       setImages([]);
-      localStorage.removeItem('userProfile');
-      localStorage.removeItem('currentStep');
+      // localStorage.removeItem('userProfile');
+      // localStorage.removeItem('currentStep');
       router.push('/profiles');
     } catch (err: any) {
       // setSubmitError(err.message || 'Submission failed');
@@ -625,7 +678,7 @@ const renderStep = () => {
 
     <div className={`min-h-screen ${styles.background} lg:fixed lg:inset-0 mt-20 p-6 flex flex-col lg:flex-row gap-10`}>
 
-      <div className='flex h-fit'>
+      <div className='flex h-fit justify-center'>
         <ProfileCard profile={initialProfile} />
       </div>
 
