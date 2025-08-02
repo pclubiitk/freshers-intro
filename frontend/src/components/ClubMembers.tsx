@@ -6,82 +6,9 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Profile } from '@/utils/types';
+import ProfileCard from './ProfileCard';
 import Image from 'next/image';
 import Link from 'next/link';
-function ProfileCard({ profile }: { profile: Profile }) {
-  const { user, branch, batch } = profile;
-  const imageUrl = user.images[0]?.image_url || '/default-avatar.png';
-
-  return (
-    <div
-      key={profile.user.id}
-      className="group relative bg-gray-100 mx-auto dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 hover:shadow-lg hover:border-indigo-500 max-w-md"
-    >
-      <Link
-        href={`/profiles/${encodeURIComponent(profile.user.id.toString())}`}
-        className="absolute inset-0 z-10"
-      />
-
-      <div className="flex flex-col sm:flex-row gap-4 relative z-0">
-        <div className="w-full sm:w-40 aspect-square flex-shrink-0 rounded-lg overflow-hidden">
-          <Swiper
-            modules={[Navigation, Pagination]}
-            navigation
-            pagination={{ clickable: true }}
-            className="w-full h-full"
-          >
-            {(profile.user.images.length > 0
-              ? profile.user.images
-              : [{ image_url: '/images/profile-placeholder.jpg' }]
-            ).map((img, i) => (
-              <SwiperSlide key={i}>
-                <img
-                  src={img.image_url}
-                  alt={`Photo ${i} of ${profile.user.username}`}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  onError={(e) =>
-                    ((e.target as HTMLImageElement).src = '/images/profile-placeholder.jpg')
-                  }
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-
-        <div className="flex-1 flex flex-col min-w-0">
-          <div className="flex justify-between items-start gap-2 flex-wrap">
-            <h2 className="text-lg font-semibold group-hover:text-indigo-600 transition-colors truncate">
-              {profile.user.username}
-            </h2>
-            <span className="bg-indigo-600 text-white text-xs px-2 py-1 rounded-full break-all">
-              {profile.user.email.split('@')[0]}
-            </span>
-          </div>
-
-          <p className="text-gray-700 dark:text-gray-300 text-sm mt-2 line-clamp-3">
-            {profile.bio || 'No bio provided.'}
-          </p>
-
-          <div className="flex flex-wrap gap-2 mt-auto pt-2">
-            {profile.interests?.length ? (
-              profile.interests.map((interest, i) => (
-                <span
-                  key={i}
-                  className="bg-indigo-600 text-white text-xs px-2 py-1 rounded-full"
-                >
-                  {interest}
-                </span>
-              ))
-            ) : (
-              <span className="text-sm text-gray-500">No interests listed.</span>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function ProfileSection({ role, profiles }: { role: string; profiles: Profile[] }) {
   if (!profiles || profiles.length === 0) return null;
@@ -106,7 +33,8 @@ export default function ProfileSection({ role, profiles }: { role: string; profi
         pagination={{ clickable: true }}
         breakpoints={{
           640: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 },
+          780: {slidesPerView: 3},
+          1440: {slidesPerView: 4}
         }}
         className="rounded-xl shadow-md"
       >

@@ -44,7 +44,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-white text-black dark:bg-black dark:text-white pt-24">
       <main className="flex-grow px-4 sm:px-6">
-        <div className="mx-auto max-w-screen-lg">
+        <div className="mx-auto">
 
           {/* Hero Section */}
           <div className="flex flex-col items-center text-center">

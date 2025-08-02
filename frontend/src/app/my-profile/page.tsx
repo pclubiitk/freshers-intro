@@ -373,7 +373,7 @@ useEffect(() => {
     buttonPrimary: theme === 'dark' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-500 hover:bg-indigo-600',
     buttonSecondary: theme === 'dark' ? 'border-indigo-600 text-indigo-400 hover:bg-gray-800' : 'border-indigo-500 text-indigo-500 hover:bg-indigo-50',
   };
-
+console.log(formData.socials)
 const renderStep = () => {
   switch (currentStep) {
     case 1:
@@ -448,8 +448,8 @@ const renderStep = () => {
             </div>
             <p className={`text-sm ${styles.secondaryText}`}>{knowledge.length}/5 photos added</p>
         
-          <h3 className={`text-xl font-semibold ${styles.textColor}`}>Socials</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h3 className={`text-xl font-semibold ${styles.textColor}`}>Socials (Public)</h3>
+          <div className="grid grid-cols-[0.3fr_0.6fr] gap-4">
             {[
               'instagram',
               'linkedin',
@@ -460,20 +460,23 @@ const renderStep = () => {
               'atcoder',
               'hackerrank',
             ].map((key) => (
-              <input
-                key={key}
-                type="text"
-                placeholder={`Enter ${key} username${key === 'discord' ? ' (e.g. user#0000)' : ''}`}
-                value={formData.socials?.[key] || ''}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    socials: { ...prev.socials, [key]: e.target.value },
-                  }))
-                }
-                className={`w-full p-2 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
-              />
-            ))}
+  <div key={key} className="contents">
+    <span className="">{`${key.charAt(0).toUpperCase()+key.slice(1,)}`}</span>
+    <input
+      type="text"
+      placeholder={`Enter ${key.charAt(0).toUpperCase()+key.slice(1,)} username${key === 'discord' ? ' (e.g. user#0000)' : ''}`}
+      value={formData.socials?.[key] || ''}
+      onChange={(e) =>
+        setFormData((prev) => ({
+          ...prev,
+          socials: { ...prev.socials, [key]: e.target.value },
+        }))
+      }
+      className={`w-full p-2 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
+    />
+  </div>
+))
+}
           </div>
         </div>
       );
@@ -548,28 +551,16 @@ const renderStep = () => {
             </div>
 <p><strong>Social Links:</strong></p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-          {Object.entries(formData.socials).map(([platform, value]) => (
-            <p key={platform} className="text-sm text-gray-800 dark:text-gray-200">
-              {SOCIAL_ICONS[platform] || null}<strong>{platform.charAt(0).toUpperCase() + platform.slice(1)}:</strong> {value}
-            </p>
-          ))}
+          {Object.entries(formData.socials)
+  .filter(([, value]) => value.trim() !== '')
+  .map(([platform, value]) => (
+    <p key={platform} className="text-sm text-gray-800 dark:text-gray-200">
+      {SOCIAL_ICONS[platform] || null}
+      <strong>{platform.charAt(0).toUpperCase() + platform.slice(1)}:</strong> {value}
+    </p>
+))}
+
         </div>
-
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-          {knowledge.map((knowledge, i) => (
-            <div key={i} className="relative w-full h-32 sm:h-36 md:h-40 rounded overflow-hidden">
-              <Image
-                src={knowledge.preview}
-                alt={`preview-${i}`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              />
-            </div>
-          ))}
-        </div>
-
-
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {knowledge.map((knowledge, i) => (
               <div key={i} className="relative w-full h-32 sm:h-36 md:h-40 rounded overflow-hidden">
@@ -600,7 +591,7 @@ const renderStep = () => {
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-blue-500 to-cyan-400 mb-6">
           Your Profile
         </h1>
-        <div className="w-full max-w-3xl">
+        <div className="w-full max-w-4xl">
           <ProgressStepper steps={['Basic Info', 'About You', 'Confirm']} currentStep={currentStep} />
           <form onSubmit={handleSubmit} className="mt-8 space-y-8">
             {renderStep()}

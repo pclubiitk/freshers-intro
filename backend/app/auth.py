@@ -38,7 +38,7 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         if not email:
             raise HTTPException(status_code=401, detail="Invalid token")
     except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+        raise HTTPException(status_code=401, detail="Invalid or expired token. Please login again.")
 
     user = db.query(models.User).filter(models.User.email == email).first()
     if not user:
