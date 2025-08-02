@@ -154,6 +154,7 @@ const [hasLoaded, setHasLoaded] = useState(false);
 useEffect(() => {
   const tryLoad = async () => {
     try {
+      await InitialLoad(setFormData, setInitialProfile, setImages);
       const saved = localStorage.getItem('userProfile');
       const initial = localStorage.getItem('initialProfile');
       const step = localStorage.getItem('currentStep');
@@ -166,7 +167,6 @@ useEffect(() => {
       } else {
         await InitialLoad(setFormData, setInitialProfile, setImages);
       }
-
       if (step) setCurrentStep(parseInt(step));
       const stored = await getImages();
       if (stored.length > 0) setImages(stored);
