@@ -28,6 +28,7 @@ class UserProfile(Base):
     batch = Column(String, nullable=True)
     hostel = Column(String, nullable=True)
     interests = Column(JSON, nullable=True)
+    socials = Column(JSON)
 
     user = relationship("User", back_populates="profile")
 

@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, ChangeEvent, FormEvent } from 'reac
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem,} from '@/components/ui/select';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Branches, Hostels } from '@/utils/constants';
 import ProgressStepper from '@/components/ProgressStepper';
 import InterestTag from '@/components/InterestTag';
@@ -14,22 +14,29 @@ import { Knowledge, Profile, User } from '@/utils/types';
 import ProfileCard from '@/components/ProfileCard';
 import { useAuth } from '@/contexts/AuthContext';
 import Loading from '@/components/Loading';
+import type { JSX } from 'react';
+import { FaInstagram, FaLinkedin, FaDiscord, FaGithub, FaCode, FaLaptopCode } from 'react-icons/fa';
 
 const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
+const SOCIAL_ICONS: Record<string, JSX.Element> = {
+  instagram: <FaInstagram className="inline mr-1" />,
+  linkedin: <FaLinkedin className="inline mr-1" />,
+  discord: <FaDiscord className="inline mr-1" />,
+  github: <FaGithub className="inline mr-1" />,
+  codeforces: <FaCode className="inline mr-1" />,
+  leetcode: <FaCode className="inline mr-1" />,
+  atcoder: <FaLaptopCode className="inline mr-1" />,
+  hackerrank: <FaLaptopCode className="inline mr-1" />,
+};
 
 type FormDataType = {
   bio: string;
   branch: string;
   interests: string[];
   hostel: string;
+socials: Record<string, string>;
 };
-
-
-
-
-
-
 
 const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<FormDataType>>,
   setInitialProfile: React.Dispatch<React.SetStateAction<Profile>>
@@ -51,6 +58,7 @@ const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<For
       branch: json.branch || '',
       interests: json.interests || [],
       hostel: json.hostel || '',
+       socials: json.socials || {},
     });
 
     setInitialProfile(json)
@@ -61,18 +69,13 @@ const InitialLoad = async ( setFormData: React.Dispatch<React.SetStateAction<For
   }
 };
 
-
-
-
-
+//thi will fetch existing profile data from the backend and initialize the form state.
 
 const AddIntroPage: React.FC = () => {
   const router = useRouter();
   const { theme } = useTheme();
   const {isAuthenticated, loading_or_not} = useAuth();
-
-  // authentication check
-  
+ 
   useEffect(() => {
     if (!loading_or_not && !isAuthenticated) {
       router.replace('/login');
@@ -85,11 +88,27 @@ const AddIntroPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>('');
-  const [formData, setFormData] = useState<FormDataType>({
+  // const [formData, setFormData] = useState<FormDataType>({
+  //   bio: '',
+  //   branch: '',
+  //   interests: [],
+  //   hostel: '',
+  // });
+    const [formData, setFormData] = useState<FormDataType>({
     bio: '',
     branch: '',
     interests: [],
     hostel: '',
+   socials: {
+    instagram: '',
+    linkedin: '',
+    discord: '',
+    github: '',
+    codeforces: '',
+    leetcode: '',
+    atcoder: '',
+    hackerrank: '',
+  },
   });
   const [initialProfile,setInitialProfile] = useState<Profile>({
     user:{ username: '', email: '', id: 0, is_verified: false, images: [] }
@@ -254,20 +273,31 @@ useEffect(() => {
       }
       const uploadedKeys = await uploadImagesToS3();
 
+      // const payload = {
+      //   bio: formData.bio,
+      //   branch: formData.branch,
+      //   hostel: formData.hostel,
+      //   interests: formData.interests,
+      //   image_keys: uploadedKeys,
+      // };
       const payload = {
-        bio: formData.bio,
-        branch: formData.branch,
-        hostel: formData.hostel,
-        interests: formData.interests,
-        image_keys: uploadedKeys,
-      };
+  bio: formData.bio,
+  branch: formData.branch,
+  hostel: formData.hostel,
+  interests: formData.interests,
+  image_keys: uploadedKeys,
+  socials: formData.socials,
+};
+
 
       const res = await fetch(`${BACKEND_ORIGIN}/profile/create-or-update-profile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(payload),
+       
       });
+       console.log(payload);
 
       if (!res.ok) {
         const errorText = await res.text();
@@ -343,14 +373,14 @@ useEffect(() => {
     buttonPrimary: theme === 'dark' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-500 hover:bg-indigo-600',
     buttonSecondary: theme === 'dark' ? 'border-indigo-600 text-indigo-400 hover:bg-gray-800' : 'border-indigo-500 text-indigo-500 hover:bg-indigo-50',
   };
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="space-y-6">
-<div className="flex flex-col md:flex-row gap-6 w-full">
-  <div className="flex-1 space-y-2">
+console.log(formData.socials)
+const renderStep = () => {
+  switch (currentStep) {
+    case 1:
+      return (
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row gap-6 w-full">
+ <div className="flex-1 space-y-2">
     <h3 className={`text-xl font-semibold ${styles.textColor}`}>Branch</h3>
     <Select
       value={formData?.branch}
@@ -417,9 +447,39 @@ useEffect(() => {
               )}
             </div>
             <p className={`text-sm ${styles.secondaryText}`}>{knowledge.length}/5 photos added</p>
+        
+          <h3 className={`text-xl font-semibold ${styles.textColor}`}>Socials (Public)</h3>
+          <div className="grid grid-cols-[0.3fr_0.6fr] gap-4">
+            {[
+              'instagram',
+              'linkedin',
+              'discord',
+              'github',
+              'codeforces',
+              'leetcode',
+              'atcoder',
+              'hackerrank',
+            ].map((key) => (
+  <div key={key} className="contents">
+    <span className="">{`${key.charAt(0).toUpperCase()+key.slice(1,)}`}</span>
+    <input
+      type="text"
+      placeholder={`Enter ${key.charAt(0).toUpperCase()+key.slice(1,)} username${key === 'discord' ? ' (e.g. user#0000)' : ''}`}
+      value={formData.socials?.[key] || ''}
+      onChange={(e) =>
+        setFormData((prev) => ({
+          ...prev,
+          socials: { ...prev.socials, [key]: e.target.value },
+        }))
+      }
+      className={`w-full p-2 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
+    />
+  </div>
+))
+}
           </div>
-        );
-
+        </div>
+      );
       case 2:
         return (
           <div className="space-y-6">
@@ -493,9 +553,18 @@ useEffect(() => {
                 <InterestTag key={interest} text={interest} />
               ))}
             </div>
+<p><strong>Social Links:</strong></p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+          {Object.entries(formData.socials)
+  .filter(([, value]) => value.trim() !== '')
+  .map(([platform, value]) => (
+    <p key={platform} className="text-sm text-gray-800 dark:text-gray-200">
+      {SOCIAL_ICONS[platform] || null}
+      <strong>{platform.charAt(0).toUpperCase() + platform.slice(1)}:</strong> {value}
+    </p>
+))}
 
-
-
+        </div>
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {knowledge.map((knowledge, i) => (
               <div key={i} className="relative w-full h-32 sm:h-36 md:h-40 rounded overflow-hidden">
@@ -526,7 +595,7 @@ useEffect(() => {
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-blue-500 to-cyan-400 mb-6">
           Your Profile
         </h1>
-        <div className="w-full max-w-3xl">
+        <div className="w-full max-w-4xl">
           <ProgressStepper steps={['Basic Info', 'About You', 'Confirm']} currentStep={currentStep} />
           <form onSubmit={handleSubmit} className="mt-8 space-y-8">
             {renderStep()}

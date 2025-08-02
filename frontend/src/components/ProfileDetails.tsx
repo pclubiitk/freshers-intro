@@ -5,6 +5,13 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { 
+  FaInstagram, 
+  FaLinkedinIn, 
+  FaGithub,
+  FaDiscord, FaCode, FaLaptopCode
+} from 'react-icons/fa';
+import { SiHackerrank } from 'react-icons/si';
 
 import { Profile } from '@/utils/types';
 import {
@@ -12,7 +19,7 @@ import {
   FaBuilding,
   FaLayerGroup,
 } from 'react-icons/fa';
-
+import Image from 'next/image';
 export default function ProfileDetails({ profile }: { profile: Profile }) {
   const images =
     profile.user.images.length > 0
@@ -88,6 +95,102 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
                 </ul>
               </section>
 
+                <div className="flex gap-3 mb-4 flex-col">
+                  <h2 className="text-xl font-semibold mb-0">Social Handles</h2>
+                                <div className='flex flex-row gap-5'>
+                                  {profile.socials?.discord && (
+                                    <a
+                                      href={`https://discord.com/users/${profile.socials.discord}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-600  hover:text-[#5865F2] dark:text-gray-400 dark:hover:text-[#5865F2] transition-colors"
+                                      aria-label="Discord"
+                                  
+                                    >
+                                      <FaDiscord size={20} className="hover:scale-130" title={`Discord | ${profile.socials.discord}`} color="#5865F2"/>
+                                    </a>
+                                  )}
+                                  {profile.socials?.instagram && (
+                                    <a
+                                      href={`https://instagram.com/${profile.socials.instagram}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-600 transition duration-300 delay-150 ease-in-out hover:text-[#E1306C] dark:text-gray-400 dark:hover:text-[#E1306C] transition-colors"
+                                      aria-label="Instagram"
+                                    >
+                                      <FaInstagram size={20} className="hover:scale-130" title={`Instagram | ${profile.socials.instagram}`} color="#E1306C"/>
+                                    </a>
+                                  )}
+                                  {profile.socials?.linkedin && (
+                                    <a
+                                      href={`https://linkedin.com/in/${profile.socials.linkedin}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-600 hover:text-[#0077B5] dark:text-gray-400 dark:hover:text-[#0077B5] transition-colors"
+                                      aria-label="LinkedIn"
+                                    >
+                                      <FaLinkedinIn size={20} className="hover:scale-130"  title={`LinkedIn | ${profile.socials.linkedin}`} color= '#0077B5'/>
+                                    </a>
+                                  )}
+                                  {profile.socials?.github && (
+                                    <a
+                                      href={`https://github.com/${profile.socials.github}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                      aria-label="GitHub"
+                                    >
+                                      <FaGithub size={20} className="hover:scale-130" title={`GitHub | ${profile.socials.github}`}  color="white" />
+                                    </a>
+                                  )}
+                                    {profile.socials?.codeforces && (
+                                    <a
+                                      href={`https://codeforces.com/profile/${profile.socials.codeforces}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-600 hover:text-[#5865F2] dark:text-gray-400 dark:hover:text-[#5865F2] transition-colors"
+                                      aria-label="codeforces"
+                                    >
+                                      <Image src='/icons8-codeforces-24.png' className="hover:scale-130" alt='codeforces-icon' title={`Codeforces | ${profile.socials.codeforces}`} width={24} height={24}/>
+                                    </a>
+                                  )}
+                                  {profile.socials?.leetcode && (
+                                    <a
+                                      href={`https://leetcode.com/${profile.socials.leetcode}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-600 hover:text-[#E1306C] dark:text-gray-400 dark:hover:text-[#E1306C] transition-colors"
+                                      aria-label="leetcode"
+                                    >
+                                      <Image src='/icons8-leetcode-24.png' className="hover:scale-130" alt='leetcode-icon' title={`LeetCode | ${profile.socials.leetcode}`} width={24} height={24}/>
+
+                                    </a>
+                                  )}
+                                  {profile.socials?.hackerrank && (
+                                    <a
+                                      href={`https://www.hackerrank.com/${profile.socials.hackerrank}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-600 hover:text-[#0077B5] dark:text-gray-400 dark:hover:text-[#0077B5] transition-colors"
+                                      aria-label="hackerrank"
+                                    >
+                                      <SiHackerrank size={20} className="hover:scale-130" title={`HackerRank | ${profile.socials.hackerrank}`}  color= '#2ec866'/>
+                                    </a>
+                                  )}
+                                  {profile.socials?.atcoder && (
+                                    <a
+                                      href={`https://atcoder.jp/users/${profile.socials.atcoder}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                      aria-label="atcoder"
+                                    >
+                                      <FaLaptopCode size={20} className="hover:scale-130" title={`AtCoder | ${profile.socials.atcoder}`} color= '#0033cc' />
+                                      </a>
+                                  )}
+                                </div>
+                              </div>
+
               {/* Interests */}
               {Array.isArray(profile.interests) &&
                 profile.interests.length > 0 && (
@@ -105,6 +208,9 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
                     </div>
                   </section>
                 )}
+
+
+
             </div>
           </div>
         </div>
