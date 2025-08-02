@@ -615,7 +615,7 @@ const renderStep = () => {
 
   return (
 
-    <div className={`min-h-screen ${styles.background} fixed inset-0 mt-20 p-6 flex flex-col lg:flex-row gap-10`}>
+    <div className={`min-h-screen ${styles.background} lg:fixed lg:inset-0 mt-20 p-6 flex flex-col lg:flex-row gap-10`}>
 
       <div className='flex h-fit'>
         <ProfileCard profile={initialProfile} />
