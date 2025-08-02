@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock } from 'lucide-react';
+import { Mail, Lock, EyeOff, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 
@@ -19,7 +19,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
+  const toggleShowPassword = () => {setShowPassword(!showPassword)};
     useEffect(() => {
       if (!loading_or_not && isAuthenticated) {
         router.replace('/my-profile');
@@ -156,7 +157,7 @@ export default function LoginPage() {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               minLength={6}
               value={password}
@@ -164,7 +165,14 @@ export default function LoginPage() {
               className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="••••••••"
             />
+                        {showPassword ? <Eye size={18} type="button" className="absolute right-3 top-1/2 transform -translate-y-1/2" onClick={() => toggleShowPassword()}/> : <EyeOff size={18} type="button" className="absolute right-3 top-1/2 transform -translate-y-1/2" onClick={() => toggleShowPassword()}/>}
           </div>
+          <span className="text-center text-sm text-gray-600 dark:text-gray-400">
+            Forgot Password?{" "}
+            <Link href="/forgot-password" className="text-blue-600 hover:underline font-medium">
+              Reset
+            </Link>
+          </span>
         </div>
 
         <button
@@ -174,13 +182,15 @@ export default function LoginPage() {
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
-
-        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-blue-600 hover:underline font-medium">
-            Sign up
-          </Link>
-        </p>
+<div className='text-center'>
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="text-blue-600 hover:underline font-medium">
+              Sign up
+            </Link>
+          </p>
+          
+</div>
       </form>
     )}
   </div>

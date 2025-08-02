@@ -8,6 +8,7 @@ from app.models import ProfileReport, User, UserProfile, UserImage
 from app.schemas import ProfileReportCreate, ProfileReportOut, UserProfileCreate, UserProfileWithUser
 from app.utils.s3 import delete_s3_object
 from typing import List, Optional
+from sqlalchemy import or_
 from uuid import UUID
 
 
@@ -38,15 +39,21 @@ def create_or_update_profile(
         raise HTTPException(400, "Invalid IITK email format")
 
     # Handle image replacement
-    if profile_data.image_keys:  # New images are provided
-        # Delete old images from S3 + DB
-        old_images = db.query(UserImage).filter_by(user_id=user.id).all()
-        for image in old_images:
-            delete_s3_object(image.image_key)
-            db.delete(image)
+    if profile_data.image_keys:
+        # Get current image keys from DB
+        existing_images = db.query(UserImage).filter_by(user_id=user.id).all()
+        existing_keys = set(img.image_key for img in existing_images)
+        new_keys = set(profile_data.image_keys)
 
-        # Add new images
-        for key in profile_data.image_keys:
+        # Keys to delete (removed by user)
+        keys_to_delete = existing_keys - new_keys
+        for key in keys_to_delete:
+            delete_s3_object(key)
+            db.query(UserImage).filter_by(user_id=user.id, image_key=key).delete()
+
+        # Keys to add (newly uploaded)
+        keys_to_add = new_keys - existing_keys
+        for key in keys_to_add:
             image_url = f"https://{os.getenv('AWS_S3_BUCKET')}.s3.{os.getenv('AWS_REGION')}.amazonaws.com/{key}"
             db.add(UserImage(user_id=user.id, image_key=key, image_url=image_url))
 
@@ -55,23 +62,53 @@ def create_or_update_profile(
     return {"message":"Profile saved successfully"}
 
 @router.post("/get-all-profiles", response_model=List[UserProfileWithUser])
-def get_profiles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+def get_profiles(
+    skip: int = 0,
+    limit: int = 10,
+    searchTerm: Optional[str] = Query(None),
+    branch: Optional[str] = Query(None),
+    batch: Optional[str] = Query(None),
+    hall: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
     """
-    Paginated route for profile data
+    Paginated + filtered profile fetching
     """
-    profiles = (
+    query = (
         db.query(UserProfile)
         .join(User, User.id == UserProfile.user_id)
         .options(
             joinedload(UserProfile.user),
             joinedload(UserProfile.user).joinedload(User.images)
         )
-        .order_by(User.username.asc())
+    )
+
+    if searchTerm:
+        term = f"%{searchTerm.lower()}%"
+        query = query.filter(
+            or_(
+                User.username.ilike(term),
+                User.email.ilike(term),
+                UserProfile.interests.ilike(term)
+            )
+        )
+
+    if branch:
+        query = query.filter(UserProfile.branch == branch)
+    if batch:
+        query = query.filter(UserProfile.batch == batch)
+    if hall:
+        query = query.filter(UserProfile.hostel == hall)
+
+    profiles = (
+        query.order_by(User.username.asc())
         .offset(skip)
         .limit(limit)
         .all()
     )
+
     return profiles
+
 
 
 @router.get("/get-my-profile", response_model=UserProfileWithUser)
@@ -97,6 +134,7 @@ def get_my_profile(db: Session = Depends(get_db), user: User = Depends(get_curre
     "batch": profile.batch,
     "hostel": profile.hostel,
     "interests": profile.interests,
+    "socials": profile.socials, 
     "user": {
         "id": profile.user.id,
         "username": profile.user.username,

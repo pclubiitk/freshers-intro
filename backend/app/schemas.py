@@ -99,18 +99,18 @@ from datetime import date, datetime
 from uuid import UUID
 from pydantic import BaseModel, EmailStr, Field, validator
 from typing import List, Optional, Dict
-from uuid import UUID
+
 
 class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
+
     @validator("email")
     def validate_iitk_email(cls, v):
         if not v.endswith("@iitk.ac.in"):
             raise ValueError("Email must be a valid @iitk.ac.in address")
         return v
-
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -145,6 +145,7 @@ class UserProfileCreate(BaseModel):
     hostel: Optional[str]
     interests: Optional[List[str]]
     image_keys: Optional[List[str]] = []
+    socials: Optional[Dict[str, str]] = Field(default_factory=dict)
 
 class UserImageOut(BaseModel):
     id: UUID
@@ -152,7 +153,6 @@ class UserImageOut(BaseModel):
 
     class Config:
         orm_mode = True
-
 
 class UserProfileOut(BaseModel):
     id: UUID
@@ -162,10 +162,11 @@ class UserProfileOut(BaseModel):
     hostel: Optional[str]
     interests: Optional[List[str]]
     images: List[UserImageOut]
+    socials: Optional[Dict[str, str]] = Field(default_factory=dict)
+
 
     class Config:
         orm_mode = True
-
 
 class UserOutWithImages(BaseModel):
     id: UUID
@@ -177,7 +178,6 @@ class UserOutWithImages(BaseModel):
     class Config:
         orm_mode = True
 
-
 class UserProfileWithUser(BaseModel):
     id: UUID
     bio: Optional[str]
@@ -186,6 +186,7 @@ class UserProfileWithUser(BaseModel):
     hostel: Optional[str]
     interests: Optional[List[str]]
     user: UserOutWithImages
+    socials: Optional[Dict[str, str]] = Field(default_factory=dict)
 
     class Config:
         orm_mode = True
@@ -206,3 +207,12 @@ class ProfileReportOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+    token: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str

@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/contexts/AuthContext';
-import { Mail, Lock, User } from "lucide-react"; // optional icons
+import { Mail, Lock, Eye, User, EyeOff } from "lucide-react"; // optional icons
 import { toast } from "sonner";
 import Link from "next/link";
 import Loading from "@/components/Loading";
 
+const ENV = process.env.NEXT_PUBLIC_ENV
 
 export default function SignupPage() {
   const { loading_or_not, isAuthenticated } = useAuth();
@@ -19,24 +20,25 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreedToTnC, setAgreedToTnC] = useState(false);
-
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-    useEffect(() => {
-      if (!loading_or_not && isAuthenticated) {
-        router.replace('/my-profile');
-      }
-    }, [loading_or_not, isAuthenticated, router]);
-  
-    if (loading_or_not) return <Loading />;
-  
-  
-const isIITKEmail = (email: string) => email.endsWith("@iitk.ac.in");
+  const [showPassword, setShowPassword] = useState(false);
+  const toggleShowPassword = () => { setShowPassword(!showPassword) };
+  useEffect(() => {
+    if (!loading_or_not && isAuthenticated) {
+      router.replace('/my-profile');
+    }
+  }, [loading_or_not, isAuthenticated, router]);
 
-const getEmailPrefix = (email: string) => email.split("@")[0];
+  if (loading_or_not) return <Loading />;
 
 
-  
+  const isIITKEmail = (email: string) => email.endsWith("@iitk.ac.in");
+
+  const getEmailPrefix = (email: string) => email.split("@")[0];
+
+
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -45,7 +47,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
       toast.error("Passwords do not match.")
       return
     }
-    
+
     if (!agreedToTnC) {
       toast.error("You must agree to the Privacy Policy to register.");
       return;
@@ -56,10 +58,10 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
       toast.error("Only IITK emails are allowed.");
       return;
     }
-    
+
     const prefix = getEmailPrefix(email);
-    
-    if (!prefix.endsWith('25')) {
+    const isStaging = ENV === "staging";
+    if (!isStaging && !prefix.endsWith('25')) {
       toast.error("Only Y25s allowed to register");
       return
     }
@@ -75,7 +77,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
 
         const data = await res.json();
 
-        if (res.status == 422){
+        if (res.status == 422) {
           reject(new Error(data.detail[0].ctx.reason || "Invalid fields."))
           return
         }
@@ -118,7 +120,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
           </div>
         )}
 
-        
+
         <div>
           <label className="text-sm font-medium block mb-1 text-gray-700 dark:text-gray-300">
             Full Name
@@ -136,7 +138,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
           </div>
         </div>
 
-        
+
         <div>
           <label className="text-sm font-medium block mb-1 text-gray-700 dark:text-gray-300">
             IITK Email
@@ -154,7 +156,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
           </div>
         </div>
 
-    
+
         <div>
           <label className="text-sm font-medium block mb-1 text-gray-700 dark:text-gray-300">
             New Password
@@ -162,7 +164,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               minLength={6}
               value={password}
@@ -170,6 +172,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
               className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               placeholder="••••••••"
             />
+            {showPassword ? <Eye size={18} type="button" className="absolute right-3 top-1/2 transform -translate-y-1/2" onClick={() => toggleShowPassword()} /> : <EyeOff size={18} type="button" className="absolute right-3 top-1/2 transform -translate-y-1/2" onClick={() => toggleShowPassword()} />}
           </div>
         </div>
         <div>
@@ -179,7 +182,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               minLength={6}
               value={confirmPassword}
@@ -189,24 +192,24 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
             />
           </div>
         </div>
-<div className="flex items-start space-x-2 text-sm text-gray-600 dark:text-gray-400">
-  <input
-    id="privacy"
-    type="checkbox"
-    checked={agreedToTnC}
-    onChange={(e) => setAgreedToTnC(e.target.checked)}
-    className="mt-1"
-  />
-  <label htmlFor="privacy">
-    I agree to the{" "}
-    <Link href="/privacy" className="text-blue-600 hover:underline" target="_blank">
-      Privacy Policy
-    </Link>
-  </label>
-</div>
+        <div className="flex items-start space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <input
+            id="privacy"
+            type="checkbox"
+            checked={agreedToTnC}
+            onChange={(e) => setAgreedToTnC(e.target.checked)}
+            className="mt-1"
+          />
+          <label htmlFor="privacy">
+            I agree to the{" "}
+            <Link href="/privacy" className="text-blue-600 hover:underline" target="_blank">
+              Privacy Policy
+            </Link>
+          </label>
+        </div>
 
 
-        
+
         <button
           type="submit"
           disabled={loading}
@@ -215,7 +218,7 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
           {loading ? "Creating..." : "Sign Up"}
         </button>
 
-   
+
         <p className="text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{" "}
           <Link href="/login" className="text-blue-600 hover:underline font-medium">
