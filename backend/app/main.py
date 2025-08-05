@@ -53,19 +53,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add preflight CORS handler
-@app.options("/{full_path:path}")
-async def preflight_handler(request: Request, full_path: str):
-    return JSONResponse(
-        content="OK",
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Credentials": "true",
-        }
-    )
-
 # Register all route modules
 app.include_router(user.router, tags=["Auth"])
 app.include_router(profiles.router, prefix="/profile", tags=["Profile"])

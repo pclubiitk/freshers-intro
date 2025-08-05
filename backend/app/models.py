@@ -29,6 +29,7 @@ class UserProfile(Base):
     hostel = Column(String, nullable=True)
     interests = Column(JSON, nullable=True)
     socials = Column(JSON)
+    background_image = Column(String, nullable=True)
 
     user = relationship("User", back_populates="profile")
 
@@ -43,18 +44,6 @@ class UserImage(Base):
 
     user = relationship("User", back_populates="images")
 
-
-class UserGeneratedArt(Base):
-    __tablename__ = "user_generated_art"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    bio_used = Column(String, nullable=False)  # The bio text used to generate the art
-    s3_key = Column(String, nullable=False)    # S3 object key
-    s3_url = Column(String, nullable=False)    # Full S3 URL
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-    user = relationship("User", backref="generated_art")
 
 
 class ProfileReport(Base):

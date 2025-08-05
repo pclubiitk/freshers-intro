@@ -51,14 +51,17 @@ async def dsgen(bio: str, username: str, user_id: str, db: Session):
                         print(f" SVG size: {len(svg_content)} characters")
                     
                         try:
-                            art_record = UserGeneratedArt(
-                                user_id=user_id,
-                                bio_used=bio,
-                                s3_key=s3_key,
-                                s3_url=s3_url
-                            )
-                            db.add(art_record)
+                            # art_record = UserGeneratedArt(
+                            #     user_id=user_id,
+                            #     bio_used=bio,
+                            #     s3_key=s3_key,
+                            #     s3_url=s3_url
+                            # )
+                            profile = db.query(UserProfile).filter_by(user_id=user_id).first()
+                            profile.background_image = s3_url
                             db.commit()
+                            # db.add(art_record)
+                            # db.commit()
                             print(f"Art metadata saved  {user_id}")
                         except Exception as db_error:
                             print(f"Databasee error: {str(db_error)}")
