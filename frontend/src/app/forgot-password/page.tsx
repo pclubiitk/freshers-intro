@@ -17,7 +17,10 @@ export default function ForgotPage(){
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!email.endsWith('@iitk.ac.in')) {
+        // Whitelist specific email addresses
+        const whitelistedEmails = ["ananyk24@iitk.ac.in"];
+        
+        if (!whitelistedEmails.includes(email) && !email.endsWith('@iitk.ac.in')) {
          toast.error('Only IITK email address is allowed.');
         return;
         }
