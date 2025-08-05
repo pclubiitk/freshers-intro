@@ -6,15 +6,92 @@ from app.database import get_db
 from app.auth import get_current_user
 from app.models import ProfileReport, User, UserProfile, UserImage
 from app.schemas import ProfileReportCreate, ProfileReportOut, UserProfileCreate, UserProfileWithUser
-from app.utils.s3 import delete_multiple_objects, delete_s3_object
+from app.utils.s3 import delete_multiple_objects, delete_s3_object, upload_svg_to_s3
 from typing import List, Optional
 from uuid import UUID
+import httpx
+import asyncio
 
 
 router = APIRouter()
 
+# ds pav integration 
+DSPAV = os.getenv("ART_URL")
+
+async def dsgen(bio: str, username: str, user_id: str, db: Session):
+    
+    try:
+        payload = {
+            "bio": bio.strip(),
+            "roll_number": username.strip()
+        }
+        print(f" Sending : {payload}")
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                f"{DSPAV}/generate",
+                json=payload,
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("success") and result.get("svg_data"):
+                    svg_content = result["svg_data"]
+                    
+                    # Save SVG to S3
+                    from datetime import datetime
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    s3_key = f"art-generation/{username}/art_{timestamp}.svg"
+                    
+                    try:
+                        s3_url = upload_svg_to_s3(svg_content, s3_key)
+                        print(f" SVG saved to S3: {s3_url}")
+                        print(f" S3 Key: {s3_key}")
+                        print(f" SVG size: {len(svg_content)} characters")
+                    
+                        try:
+                            # art_record = UserGeneratedArt(
+                            #     user_id=user_id,
+                            #     bio_used=bio,
+                            #     s3_key=s3_key,
+                            #     s3_url=s3_url
+                            # )
+                            profile = db.query(UserProfile).filter_by(user_id=user_id).first()
+                            profile.background_image = s3_url
+                            db.commit()
+                            # db.add(art_record)
+                            # db.commit()
+                            print(f"Art metadata saved  {user_id}")
+                        except Exception as db_error:
+                            print(f"Databasee error: {str(db_error)}")
+                            db.rollback()
+                            
+                        
+                        return s3_url  
+                    except Exception as s3_error:
+                        print(f" {s3_error}")
+                        return False
+                        
+                else:
+                    print(f" Art generation failed for {username}: {result.get('message', 'Unknown error')}")
+                    return False
+            else:
+                print(f" Art server error {response.status_code} for {username}")
+                try:
+                    error_response = response.json()
+                    print(f" Error details: {error_response}")
+                except:
+                    error_text = response.text
+                    print(f" Error response: {error_text}")
+                return False
+                
+    except Exception as e:
+        print(f"{username}: {str(e)}")
+        return False
+
 @router.post("/create-or-update-profile")
-def create_or_update_profile(
+async def create_or_update_profile(
     profile_data: UserProfileCreate,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
@@ -22,10 +99,18 @@ def create_or_update_profile(
     profile = db.query(UserProfile).filter_by(user_id=user.id).first()
     email = user.email
 
+    # checking if bio was updated
+    bio_updated = False
+    old_bio = None
+    if profile:
+        old_bio = profile.bio
+        bio_updated = old_bio != profile_data.bio
+    else:
+        bio_updated = bool(profile_data.bio and profile_data.bio.strip())
 
-    data = profile_data.dict(exclude={"image_keys"})
+    # Exclude both image_keys and socials from data to handle them separately
+    data = profile_data.dict(exclude={"image_keys", "socials"})
     social_links = profile_data.socials or {}
-
 
     if profile:
         for attr, value in data.items():
@@ -77,6 +162,26 @@ def create_or_update_profile(
             db.bulk_save_objects(new_images)
 
     db.commit()
+    db.refresh(profile)
+
+    
+    if bio_updated and profile_data.bio and profile_data.bio.strip():
+        username = email.split('@')[0]  
+        print(f" Bio changed for {user.username} ({username})")
+        
+        try:
+            result = await dsgen(profile_data.bio, username, user.id, db)
+            if result: 
+                if isinstance(result, str): 
+                    #print(f"saved to S3 for {user.username}")
+                    print(f" Art URL: {result}")
+                else:
+                    print(f" Art generated for {user.username}")
+            else:
+                print(f" Art generation failed for {user.username}")
+        except Exception as e:
+            print(f" Art generation error for {user.username}: {str(e)}")
+
     return {"message": "Profile saved successfully"}
 
 @router.post("/get-all-profiles", response_model=List[UserProfileWithUser])
@@ -113,6 +218,8 @@ def get_my_profile(db: Session = Depends(get_db), user: User = Depends(get_curre
 
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
+
+    return profile
 
     return profile
 

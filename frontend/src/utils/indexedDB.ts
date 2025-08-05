@@ -88,7 +88,7 @@ import { openDB } from 'idb';
 import { Knowledge } from './types';
 
 const DB_NAME = 'MyDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2; 
 const STORE_NAME = 'Images';
 
 export async function initDB() {

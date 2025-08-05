@@ -10,10 +10,13 @@ import 'swiper/css/pagination';
 import { Profile } from '@/utils/types';
 import { SiHackerrank } from 'react-icons/si';
 import Image from 'next/image';
+import { useUserArt } from '@/utils/hooks/useUserArt';
+
 type Props = {
   profile: Profile;
   number_of_interests: number;
 };
+
 
 const ProfileCard: React.FC<Props> = ({ profile, number_of_interests }) => {
   const socialLinks = [
@@ -66,6 +69,7 @@ const ProfileCard: React.FC<Props> = ({ profile, number_of_interests }) => {
   ];
 
   return (
+
     <div className="group relative bg-gray-100 mx-4 dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 h-full hover:shadow-lg hover:border-indigo-500"
     >
        {profile?.background_image ? (
@@ -84,6 +88,7 @@ const ProfileCard: React.FC<Props> = ({ profile, number_of_interests }) => {
     <div className="absolute inset-0 z-0 bg-white/60 dark:bg-black/30" />
 
       <div className="flex flex-col md:flex-row gap-4 relative z-0">
+
         <div className="w-full md:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden">
           <Link href={`/profiles/${encodeURIComponent(profile.user.id.toString())}`}>
             <div className="absolute inset-0 z-0" />

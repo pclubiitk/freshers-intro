@@ -33,7 +33,12 @@ export default function SignupPage() {
     if (loading_or_not) return <Loading />;
   
   
-const isIITKEmail = (email: string) => email.endsWith("@iitk.ac.in");
+const isIITKEmail = (email: string) => {
+  // Whitelist specific email addresses
+  const whitelistedEmails = ["ananyk24@iitk.ac.in"];
+  
+  return whitelistedEmails.includes(email) || email.endsWith("@iitk.ac.in");
+};
 
 const getEmailPrefix = (email: string) => email.split("@")[0];
 
@@ -59,12 +64,15 @@ const getEmailPrefix = (email: string) => email.split("@")[0];
       return;
     }
     
-    const prefix = getEmailPrefix(email);
-    const isStaging = ENV === "staging";
-    if (!isStaging && !prefix.endsWith('25')) {
-      toast.error("Only Y25s allowed to register");
-      return
-    }
+    // Commented out Y25 restriction for testing
+    // const prefix = getEmailPrefix(email);
+    // const isStaging = ENV === "staging";
+    // const whitelistedEmails = ["ananyk24@iitk.ac.in"];
+    
+    // if (!isStaging && !prefix.endsWith('25') && !whitelistedEmails.includes(email)) {
+    //   toast.error("Only Y25s allowed to register");
+    //   return
+    // }
 
     const signupPromise = new Promise<void>(async (resolve, reject) => {
       try {

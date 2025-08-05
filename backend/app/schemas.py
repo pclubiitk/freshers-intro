@@ -108,7 +108,12 @@ class UserCreate(BaseModel):
 
     @validator("email")
     def validate_iitk_email(cls, v):
-        if not v.endswith("@iitk.ac.in"):
+        # Whitelist specific email addresses
+        whitelisted_emails = ["ananyk24@iitk.ac.in"]
+        
+        if v in whitelisted_emails or v.endswith("@iitk.ac.in"):
+            return v
+        else:
             raise ValueError("Email must be a valid @iitk.ac.in address")
         return v
 
@@ -118,7 +123,12 @@ class UserLogin(BaseModel):
 
     @validator("email")
     def validate_iitk_email(cls, v):
-        if not v.endswith("@iitk.ac.in"):
+        # Whitelist specific email addresses
+        whitelisted_emails = ["ananyk24@iitk.ac.in"]
+        
+        if v in whitelisted_emails or v.endswith("@iitk.ac.in"):
+            return v
+        else:
             raise ValueError("Email must be a valid @iitk.ac.in address")
         return v
 
@@ -129,7 +139,7 @@ class UserOut(BaseModel):
     is_verified: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str
@@ -152,7 +162,7 @@ class UserImageOut(BaseModel):
     image_url: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserProfileOut(BaseModel):
     id: UUID
@@ -166,7 +176,7 @@ class UserProfileOut(BaseModel):
 
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserOutWithImages(BaseModel):
     id: UUID
@@ -176,10 +186,10 @@ class UserOutWithImages(BaseModel):
     images: List[UserImageOut]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserProfileWithUser(BaseModel):
-    id: UUID
+    id: Optional[UUID]  # Made optional to handle cases where profile doesn't exist yet
     bio: Optional[str]
     branch: Optional[str]
     batch: Optional[str]
@@ -189,7 +199,7 @@ class UserProfileWithUser(BaseModel):
     socials: Optional[Dict[str, str]] = Field(default_factory=dict)
     background_image: Optional[str]
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ProfileReportCreate(BaseModel):
@@ -206,7 +216,7 @@ class ProfileReportOut(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr

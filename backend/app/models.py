@@ -44,6 +44,7 @@ class UserImage(Base):
     user = relationship("User", back_populates="images")
 
 
+
 class ProfileReport(Base):
     __tablename__ = "profile_reports"
 
@@ -60,6 +61,7 @@ class ProfileReport(Base):
 
     reporter = relationship("User", backref="reports_made")
     reported_profile = relationship("UserProfile", backref="reports_received")
+
 
 class PasswordResetToken(Base):
     __tablename__ = "password_reset_tokens"

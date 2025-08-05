@@ -35,8 +35,9 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (!email.endsWith('@iitk.ac.in')) {
+    const whitelistedEmails = ["ananyk24@iitk.ac.in"];
+    
+    if (!whitelistedEmails.includes(email) && !email.endsWith('@iitk.ac.in')) {
       toast.error('Only IITK email address is allowed.');
       return;
     }

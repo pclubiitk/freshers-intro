@@ -31,9 +31,10 @@ async def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
             existing.last_verification_sent = datetime.now(ist)
             target_user = existing
     else:
-        prefix = email.split('@')[0]
-        if ENV != "staging" and not prefix.endswith('25'):
-            raise HTTPException(status_code=403, detail="Only Y25s are allowed to register.")
+        # Commented out Y25 restriction for testing
+        # prefix = email.split('@')[0]
+        # if ENV != "staging" and not prefix.endswith('25'):
+        #     raise HTTPException(status_code=403, detail="Only Y25s are allowed to register.")
         
         target_user = models.User(
             username=user.username,
