@@ -1,12 +1,12 @@
 import os
 import re
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 from app.database import get_db
 from app.auth import get_current_user
 from app.models import ProfileReport, User, UserProfile, UserImage, UserGeneratedArt
 from app.schemas import ProfileReportCreate, ProfileReportOut, UserProfileCreate, UserProfileWithUser
-from app.utils.s3 import delete_s3_object, upload_svg_to_s3
+from app.utils.s3 import delete_multiple_objects, delete_s3_object, upload_svg_to_s3
 from typing import List, Optional
 from uuid import UUID
 import httpx
@@ -114,9 +114,11 @@ async def create_or_update_profile(
             setattr(profile, attr, value)
         profile.socials = social_links
     else:
-        profile = UserProfile(user_id=user.id, socials=social_links, **data)
-        db.add(profile)
 
+        profile = UserProfile(user_id=user.id, socials=social_links, **data)
+
+        db.add(profile)
+ 
  
     match = re.search(r"(\d{2})@iitk\.ac\.in$", email)
     if match:
@@ -133,29 +135,42 @@ async def create_or_update_profile(
 
         # Keys to delete (removed by user)
         keys_to_delete = existing_keys - new_keys
-        for key in keys_to_delete:
-            delete_s3_object(key)
-            db.query(UserImage).filter_by(user_id=user.id, image_key=key).delete()
+        # for key in keys_to_delete:
+        #     delete_s3_object(key)
+        #     db.query(UserImage).filter_by(user_id=user.id, image_key=key).delete()
+
+        if keys_to_delete:
+            delete_multiple_objects(list(keys_to_delete))
+            db.query(UserImage).filter(
+                UserImage.user_id == user.id,
+                UserImage.image_key.in_(list(keys_to_delete))
+            ).delete(synchronize_session=False)
+
 
         # Keys to add (newly uploaded)
         keys_to_add = new_keys - existing_keys
-        for key in keys_to_add:
-            image_url = f"https://{os.getenv('AWS_S3_BUCKET')}.s3.{os.getenv('AWS_REGION')}.amazonaws.com/{key}"
-            db.add(UserImage(user_id=user.id, image_key=key, image_url=image_url))
+        if keys_to_add:
+            new_images = [
+        UserImage(
+            user_id=user.id,
+            image_key=key,
+            image_url=f"https://{os.getenv('AWS_S3_BUCKET')}.s3.{os.getenv('AWS_REGION')}.amazonaws.com/{key}"
+        )
+        for key in keys_to_add
+    ]
+            db.bulk_save_objects(new_images)
 
     db.commit()
-    db.refresh(profile)
+db.refresh(profile)
 
-    
     if bio_updated and profile_data.bio and profile_data.bio.strip():
-        username = email.split('@')[0]  
+        username = email.split('@')[0]
         print(f" Bio changed for {user.username} ({username})")
-        
+
         try:
             result = await dsgen(profile_data.bio, username, user.id, db)
-            if result: 
-                if isinstance(result, str): 
-                    #print(f"saved to S3 for {user.username}")
+            if result:
+                if isinstance(result, str):
                     print(f" Art URL: {result}")
                 else:
                     print(f" Art generated for {user.username}")
@@ -176,18 +191,16 @@ async def get_user_art(user_id: UUID, db: Session = Depends(get_db)):
         .order_by(UserGeneratedArt.created_at.desc())
         .first()
     )
-    
+
     if not art:
         return {"has_art": False, "s3_url": None}
-    
+
     return {
-        "has_art": True, 
+        "has_art": True,
         "s3_url": art.s3_url,
         "bio_used": art.bio_used,
         "created_at": art.created_at
     }
-
-
 @router.post("/get-all-profiles", response_model=List[UserProfileWithUser])
 def get_profiles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     """
@@ -197,8 +210,8 @@ def get_profiles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
         db.query(UserProfile)
         .join(User, User.id == UserProfile.user_id)
         .options(
-            joinedload(UserProfile.user),
-            joinedload(UserProfile.user).joinedload(User.images)
+            selectinload(UserProfile.user),
+            selectinload(UserProfile.user).selectinload(User.images)
         )
         .order_by(User.username.asc())
         .offset(skip)
@@ -213,7 +226,6 @@ def get_my_profile(db: Session = Depends(get_db), user: User = Depends(get_curre
     profile = (
         db.query(UserProfile)
         .filter_by(user_id=user.id)
-        .join(User, User.id == UserProfile.user_id)
         .options(
             joinedload(UserProfile.user),
             joinedload(UserProfile.user).joinedload(User.images)
@@ -243,25 +255,7 @@ def get_my_profile(db: Session = Depends(get_db), user: User = Depends(get_curre
             }
         }
 
-    return {
-    "id": profile.id,
-    "bio": profile.bio,
-    "branch": profile.branch,
-    "batch": profile.batch,
-    "hostel": profile.hostel,
-    "interests": profile.interests,
-    "socials": profile.socials, 
-    "user": {
-        "id": profile.user.id,
-        "username": profile.user.username,
-        "email": profile.user.email,
-        "images": [
-            {"id": img.id, "image_url": img.image_url}
-            for img in profile.user.images
-        ],
-        "is_verified": profile.user.is_verified
-    }
-}
+    return profile
 
 
 from fastapi import Query
@@ -274,7 +268,6 @@ def get_profile_by_user_id(
     profile = (
         db.query(UserProfile)
         .filter_by(user_id=id)
-        .join(User, User.id == UserProfile.user_id)
         .options(
             joinedload(UserProfile.user),
             joinedload(UserProfile.user).joinedload(User.images)

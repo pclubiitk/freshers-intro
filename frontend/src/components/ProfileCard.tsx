@@ -14,11 +14,11 @@ import { useUserArt } from '@/utils/hooks/useUserArt';
 
 type Props = {
   profile: Profile;
+  number_of_interests: number;
 };
 
-const ProfileCard: React.FC<Props> = ({ profile }) => {
+const ProfileCard: React.FC<Props> = ({ profile, number_of_interests }) => {
   const { data: userArt, isLoading } = useUserArt(profile.user.id);
-  
   const socialLinks = [
     {
       key: 'discord',
@@ -41,7 +41,7 @@ const ProfileCard: React.FC<Props> = ({ profile }) => {
     {
       key: 'github',
       url: (value: string) => `https://github.com/${value}`,
-      icon: <FaGithub size={20} />,
+      icon: <FaGithub size={20} className='invert dark:invert-0'/>,
       color: 'white',
     },
     {
@@ -71,10 +71,10 @@ const ProfileCard: React.FC<Props> = ({ profile }) => {
   ];
 
   return (
-    <div className="group relative bg-gray-100 mx-4 dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 h-full hover:shadow-lg hover:border-indigo-500">
+<div className="group relative bg-gray-100 mx-4 dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 h-full hover:shadow-lg hover:border-indigo-500">
       {userArt?.has_art && userArt?.s3_url && (
         <>
-          <div 
+          <div
             className="absolute inset-0 rounded-lg opacity-70 dark:opacity-65 transition-opacity duration-300"
             style={{
               backgroundImage: `url(${userArt.s3_url})`,
@@ -87,8 +87,8 @@ const ProfileCard: React.FC<Props> = ({ profile }) => {
           <div className="absolute inset-0 rounded-lg bg-white dark:bg-black opacity-20 dark:opacity-20 z-[1]" />
         </>
       )}
-      
-      
+
+
       <div className="flex flex-col md:flex-row gap-4 relative z-10">
         <div className="w-full md:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden">
           <Link href={`/profiles/${encodeURIComponent(profile.user.id.toString())}`}>
@@ -153,7 +153,7 @@ const ProfileCard: React.FC<Props> = ({ profile }) => {
           </div>
 
           <div className="flex flex-wrap gap-2 mt-auto">
-            {profile.interests?.map((interest: string, i: number) => (
+            {profile.interests?.slice(0,number_of_interests)?.map((interest: string, i: number) => (
               <span
                 key={i}
                 className="inline-flex items-center justify-center bg-indigo-600 text-white text-xs font-medium px-4 py-[2px] rounded-full"

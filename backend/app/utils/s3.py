@@ -1,4 +1,5 @@
 import os
+from typing import List
 import boto3
 from botocore.exceptions import ClientError
 
@@ -59,9 +60,8 @@ def delete_s3_object(key: str):
     except ClientError as e:
         print(f"[S3 Delete Error] Failed to delete {key}: {e}")
 
-
 def upload_svg_to_s3(svg_content: str, key: str) -> str:
-  
+    """Uploads SVG content to S3 and returns the public URL."""
     try:
         s3_client.put_object(
             Bucket=S3_BUCKET,
@@ -70,11 +70,26 @@ def upload_svg_to_s3(svg_content: str, key: str) -> str:
             ContentType='image/svg+xml',
             ContentDisposition='inline'
         )
-        
+
         # Return the public URL
         url = f"https://{S3_BUCKET}.s3.{AWS_REGION}.amazonaws.com/{key}"
         return url
-        
+
     except ClientError as e:
         raise Exception(f"Error uploading SVG to S3: {e}")
 
+
+def delete_multiple_objects(keys: List[str]):
+    """Deletes multiple objects from S3."""
+    if not keys:
+        return
+
+    try:
+        objects_to_delete = {"Objects": [{"Key": key} for key in keys]}
+        s3_client.delete_objects(
+            Bucket=S3_BUCKET,
+            Delete=objects_to_delete
+        )
+        print(f"Deleted {len(keys)} objects from S3.")
+    except ClientError as e:
+        print(f"Error deleting objects from S3: {e}")
