@@ -26,4 +26,5 @@ export type Profile = {
     atcoder?: string;
     hackerrank?: string;
   };
+  background_image?: string;
 };

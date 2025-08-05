@@ -29,7 +29,7 @@ class UserProfile(Base):
     hostel = Column(String, nullable=True)
     interests = Column(JSON, nullable=True)
     socials = Column(JSON)
-
+    background_image = Column(String, nullable=True) 
     user = relationship("User", back_populates="profile")
 
 

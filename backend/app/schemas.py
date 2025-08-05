@@ -187,7 +187,7 @@ class UserProfileWithUser(BaseModel):
     interests: Optional[List[str]]
     user: UserOutWithImages
     socials: Optional[Dict[str, str]] = Field(default_factory=dict)
-
+    background_image: Optional[str]
     class Config:
         orm_mode = True
 

@@ -12,9 +12,10 @@ import { SiHackerrank } from 'react-icons/si';
 import Image from 'next/image';
 type Props = {
   profile: Profile;
+  number_of_interests: number;
 };
 
-const ProfileCard: React.FC<Props> = ({ profile }) => {
+const ProfileCard: React.FC<Props> = ({ profile, number_of_interests }) => {
   const socialLinks = [
     {
       key: 'discord',
@@ -37,7 +38,7 @@ const ProfileCard: React.FC<Props> = ({ profile }) => {
     {
       key: 'github',
       url: (value: string) => `https://github.com/${value}`,
-      icon: <FaGithub size={20} />,
+      icon: <FaGithub size={20} className='invert dark:invert-0'/>,
       color: 'white',
     },
     {
@@ -67,7 +68,23 @@ const ProfileCard: React.FC<Props> = ({ profile }) => {
   ];
 
   return (
-    <div className="group relative bg-gray-100 mx-4 dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 h-full hover:shadow-lg hover:border-indigo-500">
+    <div className="group relative bg-gray-100 mx-4 dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 h-full hover:shadow-lg hover:border-indigo-500"
+    >
+       {profile?.background_image ? (
+      <div
+        className="absolute inset-0 bg-center bg-cover z-0"
+        style={{
+          backgroundImage: `url(${profile.background_image})`,
+          filter: 'blur(1px) brightness(1)',
+          transform: 'scale(1.1)',
+
+        }}
+      />
+    ) : (
+      <div className="absolute inset-0 bg-white dark:bg-black z-0" />
+    )}
+    <div className="absolute inset-0 z-0 bg-white/60 dark:bg-black/30" />
+
       <div className="flex flex-col md:flex-row gap-4 relative z-0">
         <div className="w-full md:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden">
           <Link href={`/profiles/${encodeURIComponent(profile.user.id.toString())}`}>
@@ -132,7 +149,7 @@ const ProfileCard: React.FC<Props> = ({ profile }) => {
           </div>
 
           <div className="flex flex-wrap gap-2 mt-auto">
-            {profile.interests?.map((interest: string, i: number) => (
+            {profile.interests?.slice(0,number_of_interests)?.map((interest: string, i: number) => (
               <span
                 key={i}
                 className="inline-flex items-center justify-center bg-indigo-600 text-white text-xs font-medium px-4 py-[2px] rounded-full"
