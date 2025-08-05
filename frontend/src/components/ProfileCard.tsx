@@ -10,11 +10,15 @@ import 'swiper/css/pagination';
 import { Profile } from '@/utils/types';
 import { SiHackerrank } from 'react-icons/si';
 import Image from 'next/image';
+import { useUserArt } from '@/utils/hooks/useUserArt';
+
 type Props = {
   profile: Profile;
 };
 
 const ProfileCard: React.FC<Props> = ({ profile }) => {
+  const { data: userArt, isLoading } = useUserArt(profile.user.id);
+  
   const socialLinks = [
     {
       key: 'discord',
@@ -68,7 +72,24 @@ const ProfileCard: React.FC<Props> = ({ profile }) => {
 
   return (
     <div className="group relative bg-gray-100 mx-4 dark:bg-gray-900 rounded-lg overflow-hidden shadow-md border border-gray-300 dark:border-gray-700 transition-all p-4 h-full hover:shadow-lg hover:border-indigo-500">
-      <div className="flex flex-col md:flex-row gap-4 relative z-0">
+      {userArt?.has_art && userArt?.s3_url && (
+        <>
+          <div 
+            className="absolute inset-0 rounded-lg opacity-70 dark:opacity-65 transition-opacity duration-300"
+            style={{
+              backgroundImage: `url(${userArt.s3_url})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              zIndex: 0
+            }}
+          />
+          <div className="absolute inset-0 rounded-lg bg-white dark:bg-black opacity-20 dark:opacity-20 z-[1]" />
+        </>
+      )}
+      
+      
+      <div className="flex flex-col md:flex-row gap-4 relative z-10">
         <div className="w-full md:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden">
           <Link href={`/profiles/${encodeURIComponent(profile.user.id.toString())}`}>
             <div className="absolute inset-0 z-0" />

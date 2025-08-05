@@ -59,3 +59,22 @@ def delete_s3_object(key: str):
     except ClientError as e:
         print(f"[S3 Delete Error] Failed to delete {key}: {e}")
 
+
+def upload_svg_to_s3(svg_content: str, key: str) -> str:
+  
+    try:
+        s3_client.put_object(
+            Bucket=S3_BUCKET,
+            Key=key,
+            Body=svg_content.encode('utf-8'),
+            ContentType='image/svg+xml',
+            ContentDisposition='inline'
+        )
+        
+        # Return the public URL
+        url = f"https://{S3_BUCKET}.s3.{AWS_REGION}.amazonaws.com/{key}"
+        return url
+        
+    except ClientError as e:
+        raise Exception(f"Error uploading SVG to S3: {e}")
+

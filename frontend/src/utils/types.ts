@@ -26,4 +26,10 @@ export type Profile = {
     atcoder?: string;
     hackerrank?: string;
   };
+  generated_art?: {
+    has_art: boolean;
+    s3_url?: string;
+    bio_used?: string;
+    created_at?: string;
+  };
 };
