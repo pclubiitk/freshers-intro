@@ -222,7 +222,7 @@ export default function ReportsPage() {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will delete the profile assodicated with{" "}
+                        This will delete the profile associated with{" "}
                         <strong>{report.reported_profile.user.email}</strong>.<br/> The user can create a new profile afterwards.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
