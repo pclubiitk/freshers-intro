@@ -116,15 +116,15 @@ export default function LoginPage() {
   };
 
   return (
-  <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-black transition-colors">
+  <div className="fixed inset-0 flex items-center justify-center bg-background transition-colors">
     {loading_or_not ? (
       <Loading />
     ) : (
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md p-8 rounded-2xl shadow-xl backdrop-blur-lg border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 space-y-6 animate-in fade-in duration-700 transition-colors"
+        className="w-full max-w-md p-8 rounded-2xl shadow-xl backdrop-blur-lg border border-gray-300 dark:border-gray-800 bg-card dark:bg-gray-900 space-y-6 animate-in fade-in duration-700 transition-colors"
       >
-        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white">
+        <h2 className="text-3xl font-bold text-center text-primary">
           Welcome Back
         </h2>
 
@@ -135,7 +135,7 @@ export default function LoginPage() {
         )}
 
         <div>
-          <label className="text-sm font-medium block mb-1 text-gray-800 dark:text-gray-300">
+          <label className="text-sm font-medium block mb-1 text-primary">
             Email
           </label>
           <div className="relative">
@@ -145,14 +145,14 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              className="w-full pl-10 pr-4 py-2 rounded-lg bg-input dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="<cc_username>@iitk.ac.in"
             />
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-medium block mb-1 text-gray-800 dark:text-gray-300">
+          <label className="text-sm font-medium block mb-1 text-primary">
             Password
           </label>
           <div className="relative">
@@ -163,7 +163,7 @@ export default function LoginPage() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              className="w-full pl-10 pr-4 py-2 rounded-lg bg-input dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="••••••••"
             />
                         {showPassword ? <Eye size={18} type="button" className="absolute right-3 top-1/2 transform -translate-y-1/2" onClick={() => toggleShowPassword()}/> : <EyeOff size={18} type="button" className="absolute right-3 top-1/2 transform -translate-y-1/2" onClick={() => toggleShowPassword()}/>}

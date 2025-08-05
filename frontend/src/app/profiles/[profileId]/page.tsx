@@ -113,7 +113,23 @@ export default function ProfilePage({ params }: { params: Promise<{ profileId: s
   if (!profile) return null;
 
   return (
-    <div className="space-y-4 px-4 sm:px-8 py-6 dark:bg-black bg-white min-h-screen">
+      <div className="relative min-h-screen overflow-hidden">
+    {profile?.background_image ? (
+      <div
+        className="absolute inset-0 bg-center bg-cover z-0"
+        style={{
+          backgroundImage: `url(${profile.background_image})`,
+          filter: 'brightness(1)',
+          transform: 'scale(1.1)',
+        }}
+      />
+    ) : (
+      <div className="absolute inset-0 bg-white dark:bg-black z-0" />
+    )}
+
+    <div className="absolute inset-0 z-0 bg-white/60 dark:bg-black/30 backdrop-blur-xs" />
+
+    <div className="relative z-10 space-y-4 px-4 sm:px-8 py-6 text-black dark:text-white">
       <ProfileDetails profile={profile} />
       <div className="flex justify-end ">
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -158,6 +174,7 @@ export default function ProfilePage({ params }: { params: Promise<{ profileId: s
           </DialogContent>
         </Dialog>
       </div>
+    </div>
     </div>
   );
 }

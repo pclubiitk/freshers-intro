@@ -1,4 +1,5 @@
 import os
+from typing import List
 import boto3
 from botocore.exceptions import ClientError
 
@@ -78,3 +79,5 @@ def upload_svg_to_s3(svg_content: str, key: str) -> str:
     except ClientError as e:
         raise Exception(f"Error uploading SVG to S3: {e}")
 
+def delete_multiple_objects(keys: List[str]):
+    s3_client.delete_objects(Bucket=S3_BUCKET, Delete={"Objects": [{"Key": key} for key in keys]})

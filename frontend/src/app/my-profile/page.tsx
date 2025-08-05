@@ -16,20 +16,21 @@ import { useAuth } from '@/contexts/AuthContext';
 import Loading from '@/components/Loading';
 import type { Dispatch, JSX, SetStateAction } from 'react';
 import { FaInstagram, FaLinkedin, FaDiscord, FaGithub, FaCode, FaLaptopCode } from 'react-icons/fa';
-import { fetchImageAsFileAndPreview } from '@/utils/functions';
+import { compressImage, fetchImageAsFileAndPreview } from '@/utils/functions';
 import { SiHackerrank } from 'react-icons/si';
-
+import heic2any from 'heic2any';
+import { Badge } from '@/components/ui/badge';
 const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
 const SOCIAL_ICONS: Record<string, JSX.Element> = {
-  instagram: <FaInstagram className="inline mr-1" />,
-  linkedin: <FaLinkedin className="inline mr-1" />,
-  discord: <FaDiscord className="inline mr-1" />,
+  instagram: <FaInstagram className="inline mr-1" color='#E1306C'/>,
+  linkedin: <FaLinkedin className="inline mr-1" color='#0077B5'/>,
+  discord: <FaDiscord className="inline mr-1" color='#5865F2'/>,
   github: <FaGithub className="inline mr-1" />,
-  codeforces: <Image src='/icons8-codeforces-24.png' className="hover:scale-130" width={24} height={24} alt={''}/>,
-  leetcode: <Image src='/icons8-leetcode-24.png' className="hover:scale-130" width={24} height={24} alt={''}/>,
-  atcoder: <FaLaptopCode className="inline mr-1" />,
-  hackerrank: <SiHackerrank className="inline mr-1" />,
+  codeforces: <Image src='/icons8-codeforces-24.png' className="inline mr-1 hover:scale-130" width={16} height={16} alt={''}/>,
+  leetcode: <Image src='/icons8-leetcode-24.png' className="inline mr-1 hover:scale-130" width={16} height={16} alt={''}/>,
+  atcoder: <FaLaptopCode className="inline mr-1" color='0033cc' />,
+  hackerrank: <SiHackerrank className="inline mr-1" color='2ec866' />,
 };
 
 type FormDataType = {
@@ -316,37 +317,56 @@ useEffect(() => {
     // localStorage.setItem('userProfile', JSON.stringify(updated));
   };
 
-  const uploadImagesToS3 = async (): Promise<string[]> => {
-    const keys: string[] = [];
-    for (const {file} of images) {
-      try {
-        const presignRes = await fetch(`${BACKEND_ORIGIN}/s3/presign?filename=${file.name}&type=${file.type}`, {
-          credentials: 'include',
-        });
+const uploadImagesToS3 = async (): Promise<string[]> => {
+  const toastId = toast.loading('Processing & uploading images...');
+  try {
+    const uploadPromises = images.map(async ({ file }) => {
+      let processedBlob: Blob;
+      let uploadName = file.name;
 
-        const { upload_url, fields, key } = await presignRes.json();
-
-        const uploadForm = new FormData();
-        Object.entries(fields).forEach(([k, v]) => uploadForm.append(k, v as string));
-        uploadForm.append('file', file);
-
-        const uploadRes = await fetch(upload_url, {
-          method: 'POST',
-          body: uploadForm,
-        });
-
-        if (!uploadRes.ok) throw new Error(`Upload failed for ${file.name}`);
-
-        keys.push(key);
-        toast.success(`${file.name} uploaded`);
-      } catch (err) {
-        toast.error(`Error uploading ${file.name}`);
-        console.error(err);
-        throw err;
+      if (file.type === 'image/heic' || file.name.endsWith('.heic')) {
+        const converted = await heic2any({ blob: file, toType: 'image/jpeg' }) as Blob;
+        processedBlob = await compressImage(new File([converted], "converted.jpg", { type: "image/jpeg" }));
+        uploadName = uploadName.replace(/\.heic$/, ".jpg");
+      } else {
+        processedBlob = await compressImage(file);
+        uploadName = uploadName.replace(/\.\w+$/, ".jpg");
       }
-    }
-    return keys;
-  };
+
+      const presignRes = await fetch(`${BACKEND_ORIGIN}/s3/presign?filename=${uploadName}&type=image/jpeg`, {
+        credentials: 'include',
+      });
+
+      if (!presignRes.ok) throw new Error(`Presign failed for ${file.name}`);
+      const { upload_url, fields, key } = await presignRes.json();
+
+      const uploadForm = new FormData();
+      Object.entries(fields).forEach(([k, v]) => uploadForm.append(k, v as string));
+      uploadForm.append('file', processedBlob);
+
+      const uploadRes = await fetch(upload_url, {
+        method: 'POST',
+        body: uploadForm,
+      });
+
+      if (!uploadRes.ok) throw new Error(`Upload failed for ${file.name}`);
+
+      return key;
+    });
+
+    const uploadedKeys = await Promise.all(uploadPromises);
+
+    toast.success('All images uploaded successfully!', { id: toastId });
+
+    return uploadedKeys;
+  } catch (err: any) {
+    console.error(err);
+    toast.error(err.message || 'Upload failed.', { id: toastId });
+    throw err;
+  }
+};
+
+
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -393,7 +413,7 @@ useEffect(() => {
         const errorText = await res.text();
         throw new Error(errorText);
       }
-      toast.success('Profile submitted successfully!');
+      toast.success('Profile updated successfully!');
       await clearImages();
       setImages([]);
       // localStorage.removeItem('userProfile');
@@ -518,7 +538,7 @@ const renderStep = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               {images.map((images, index) => (
                 <div key={index} className="relative aspect-square rounded overflow-hidden shadow-md">
-                  <Image src={images.preview} title={`Preview ${index}`} alt={`Preview ${index}`} fill className="object-cover w-full h-full" />
+                  <Image src={images.preview} title={`Preview ${index}`} alt={`This image will be processed and uploaded.`} fill className="object-cover w-full h-full" />
                   <button
                     type="button"
                     onClick={() => removePhoto(index)}
@@ -577,7 +597,7 @@ const renderStep = () => {
               name="bio"
               value={formData?.bio}
               onChange={(e) => handleInputChange('bio', e.target.value)}
-              placeholder="Tell us about yourself"
+              placeholder="Tell us about yourself. This will be used to generate a customized background for your profile."
               className={`w-full p-2 h-40 border ${styles.inputBorder} rounded ${styles.inputBg} ${styles.textColor}`}
             />
 
@@ -639,10 +659,10 @@ const renderStep = () => {
             <p><strong>Interests:</strong></p>
             <div className="flex flex-wrap gap-2">
               {formData.interests.map((interest) => (
-                <InterestTag key={interest} text={interest} />
+                <InterestTag key={interest} text={interest}/>
               ))}
             </div>
-<p><strong>Social Links:</strong></p>
+<p><strong>Socials:</strong></p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
           {Object.entries(formData.socials)
   .filter(([, value]) => value.trim() !== '')
@@ -654,6 +674,7 @@ const renderStep = () => {
 ))}
 
         </div>
+            <p><strong>Images:</strong></p>
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {images.map((images, i) => (
               <div key={i} className="relative w-full h-32 sm:h-36 md:h-40 rounded overflow-hidden">
@@ -676,14 +697,14 @@ const renderStep = () => {
 
   return (
 
-    <div className={`min-h-screen ${styles.background} lg:fixed lg:inset-0 mt-20 p-6 flex flex-col lg:flex-row gap-10`}>
+    <div className={`min-h-screen ${styles.background} lg:fixed lg:inset-0 md:mt-20 p-6 flex flex-col lg:flex-row gap-10`}>
 
       <div className='flex h-fit justify-center'>
-        <ProfileCard profile={initialProfile} />
+        <ProfileCard profile={initialProfile} number_of_interests={5}/>
       </div>
 
       <div className='overflow-y-auto no-scrollbar mb-20 w-full max-w-6xl mx-auto bg-background-100 dark:bg-background-900 rounded-2xl shadow-lg border border-border-300 dark:border-border-700 dark:border-zinc-500 p-4 transition-all duration-300 items-center'>
-        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-blue-500 to-cyan-400 mb-6">
+        <h1 className="text-4xl font-bold bg-clip-text mb-6">
           Your Profile
         </h1>
         <div className="w-full max-w-4xl">

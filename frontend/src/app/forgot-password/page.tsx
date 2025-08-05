@@ -65,7 +65,7 @@ export default function ForgotPage(){
         setIsVerified(false);
     }
     return (
-        <div className="flex items-center justify-center fixed inset-0 bg-white dark:bg-black">
+        <div className="flex items-center justify-center fixed inset-0 bg-background dark:bg-black">
            <form className="w-[80%] mb:w-full max-w-md p-4 md:p-8 rounded-2xl shadow-xl backdrop-blur-lg border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 space-y-6 animate-in fade-in duration-700 transition-colors" onSubmit={handleSubmit}><h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white">
           Reset Password
         </h2>
