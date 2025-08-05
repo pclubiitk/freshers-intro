@@ -122,7 +122,7 @@ const ProfileCard: React.FC<Props> = ({ profile, number_of_interests }) => {
             </span>
           </div>
 
-          <p className="text-black-700 dark:text-gray-300 text-sm line-clamp-3 mb-3">
+          <p className="text-gray-700 dark:text-gray-300 text-sm line-clamp-3 mb-3">
             {profile.bio || 'None'}
           </p>
 
