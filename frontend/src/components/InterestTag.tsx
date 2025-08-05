@@ -19,7 +19,7 @@ const InterestTag: React.FC<InterestTagProps> = ({
   return (
     <div>
       <div
-        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium cursor-pointer transition
+        className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium cursor-pointer transition
           ${disabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-indigo-500 text-white hover:bg-indigo-600'}`}
         onClick={!disabled ? onClick : undefined}
       >

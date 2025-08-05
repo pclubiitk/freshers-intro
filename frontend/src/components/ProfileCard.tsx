@@ -45,13 +45,11 @@ const ProfileCard: React.FC<Props> = ({ profile, number_of_interests }) => {
       key: 'codeforces',
       url: (value: string) => `https://codeforces.com/profile/${value}`,
       icon: <Image src='/icons8-codeforces-24.png' className="hover:scale-130" width={20} height={20} alt={''}/>,
-      color: '#1f8acb',
     },
     {
       key: 'leetcode',
       url: (value: string) => `https://leetcode.com/${value}`,
       icon: <Image src='/icons8-leetcode-24.png' className="hover:scale-130" width={20} height={20} alt={''}/>,
-      color: '#f89f1b',
     },
     {
       key: 'atcoder',
@@ -63,7 +61,7 @@ const ProfileCard: React.FC<Props> = ({ profile, number_of_interests }) => {
       key: 'hackerrank',
       url: (value: string) => `https://www.hackerrank.com/${value}`,
       icon: <SiHackerrank size={20} />,
-      color: '#2ec866',
+      color: '#2ec866'
     },
   ];
 
@@ -95,7 +93,7 @@ const ProfileCard: React.FC<Props> = ({ profile, number_of_interests }) => {
               className="w-full h-full custom-swiper"
             >
               {(profile.user.images.length > 0
-                ? profile.user.images
+                ? profile.user.images.slice(0,1)
                 : [{ image_url: '/images/profile-placeholder.jpg' }]
               ).map((img, i) => (
                 <SwiperSlide key={i}>

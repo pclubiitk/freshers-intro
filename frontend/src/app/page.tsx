@@ -22,7 +22,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white text-black dark:bg-black dark:text-white">
+    <div className="flex flex-col min-h-screen bg-background text-black dark:bg-black dark:text-white">
       <main className="flex-grow px-4 sm:px-6">
         <div className="mx-auto">
 <div className="md:flex-row flex-col flex items-center md:pl-[30px] md:pr-[30px] pt-[20px]">
@@ -73,15 +73,15 @@ export default function Home() {
               </Link>
             </div>
             </div>
-          <div className=" flex flex-1 w-full">
-            <div className="flex-1 w-full">
-              <div className="aspect-[16/9] rounded-lg overflow-hidden shadow-md justify-center items-center flex">
+          <div className=" flex flex-1 w-full ">
+            <div className="flex-1 w-full animate-slideInLeft">
+              <div className="aspect-[16/9] rounded-lg animate-slideInLeft overflow-hidden shadow-md justify-center items-center flex">
                 <iframe
                 id="ytplayer"
                   src="https://www.youtube.com/embed/bYgOm78lcHc?autoplay=1&mute=1&rel=0&loop=1&controls=1&playlist=bYgOm78lcHc"
                   allow="autoplay"
                   allowFullScreen
-                  className="w-[90%] h-[90%]"
+                  className="w-[90%] h-[90%] rounded-4xl border animate-slideInLeft"
                 ></iframe>
               </div>
             </div>

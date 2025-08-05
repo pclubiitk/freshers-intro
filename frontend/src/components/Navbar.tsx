@@ -119,23 +119,24 @@ const Navbar = () => {
         <ThemeToggle />
       </div>
 
-      {/* Mobile Menu Button */}
-      <button
-        className="md:hidden"
-        onClick={() => setMobileOpen(!mobileOpen)}
-        aria-label="Toggle Menu"
-      >
-        {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+       <div className='flex flex-row flex-0 gap-4 md:hidden'>
+         <ThemeToggle  />
+         <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle Menu"
+               >
+          {mobileOpen ? <X className='ml-2' size={24} /> : <Menu size={24} />}
+               </button>
+       </div>
 
       {/* Mobile Menu Dropdown */}
       {mobileOpen && (
-        <ul className="absolute top-16 left-0 w-full bg-background text-foreground flex flex-col items-center gap-4 py-4 border-t border-border md:hidden z-50 transition-colors">
+        <ul className="absolute top-16 left-0 w-full bg-background text-foreground flex flex-col text-right gap-4 py-4 border-t border-border md:hidden z-50 transition-colors">
           {navItems.map((item) => {
             const isActive = item.href && pathname === item.href;
 
             return (
-              <li key={item.label}>
+              <li key={item.label} className='mr-10'>
                 {item.href ? (
                   <Link
                     href={item.href}
@@ -163,7 +164,6 @@ const Navbar = () => {
             );
           })}
           <li>
-            <ThemeToggle />
           </li>
         </ul>
       )}

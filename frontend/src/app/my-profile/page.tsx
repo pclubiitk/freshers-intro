@@ -19,17 +19,18 @@ import { FaInstagram, FaLinkedin, FaDiscord, FaGithub, FaCode, FaLaptopCode } fr
 import { compressImage, fetchImageAsFileAndPreview } from '@/utils/functions';
 import { SiHackerrank } from 'react-icons/si';
 import heic2any from 'heic2any';
+import { Badge } from '@/components/ui/badge';
 const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
 const SOCIAL_ICONS: Record<string, JSX.Element> = {
-  instagram: <FaInstagram className="inline mr-1" />,
-  linkedin: <FaLinkedin className="inline mr-1" />,
-  discord: <FaDiscord className="inline mr-1" />,
+  instagram: <FaInstagram className="inline mr-1" color='#E1306C'/>,
+  linkedin: <FaLinkedin className="inline mr-1" color='#0077B5'/>,
+  discord: <FaDiscord className="inline mr-1" color='#5865F2'/>,
   github: <FaGithub className="inline mr-1" />,
-  codeforces: <Image src='/icons8-codeforces-24.png' className="hover:scale-130" width={24} height={24} alt={''}/>,
-  leetcode: <Image src='/icons8-leetcode-24.png' className="hover:scale-130" width={24} height={24} alt={''}/>,
-  atcoder: <FaLaptopCode className="inline mr-1" />,
-  hackerrank: <SiHackerrank className="inline mr-1" />,
+  codeforces: <Image src='/icons8-codeforces-24.png' className="inline mr-1 hover:scale-130" width={16} height={16} alt={''}/>,
+  leetcode: <Image src='/icons8-leetcode-24.png' className="inline mr-1 hover:scale-130" width={16} height={16} alt={''}/>,
+  atcoder: <FaLaptopCode className="inline mr-1" color='0033cc' />,
+  hackerrank: <SiHackerrank className="inline mr-1" color='2ec866' />,
 };
 
 type FormDataType = {
@@ -537,7 +538,7 @@ const renderStep = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               {images.map((images, index) => (
                 <div key={index} className="relative aspect-square rounded overflow-hidden shadow-md">
-                  <Image src={images.preview} title={`Preview ${index}`} alt={`Preview ${index}`} fill className="object-cover w-full h-full" />
+                  <Image src={images.preview} title={`Preview ${index}`} alt={`This image will be processed and uploaded.`} fill className="object-cover w-full h-full" />
                   <button
                     type="button"
                     onClick={() => removePhoto(index)}
@@ -658,10 +659,10 @@ const renderStep = () => {
             <p><strong>Interests:</strong></p>
             <div className="flex flex-wrap gap-2">
               {formData.interests.map((interest) => (
-                <InterestTag key={interest} text={interest} />
+                <InterestTag key={interest} text={interest}/>
               ))}
             </div>
-<p><strong>Social Links:</strong></p>
+<p><strong>Socials:</strong></p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
           {Object.entries(formData.socials)
   .filter(([, value]) => value.trim() !== '')
@@ -673,6 +674,7 @@ const renderStep = () => {
 ))}
 
         </div>
+            <p><strong>Images:</strong></p>
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {images.map((images, i) => (
               <div key={i} className="relative w-full h-32 sm:h-36 md:h-40 rounded overflow-hidden">

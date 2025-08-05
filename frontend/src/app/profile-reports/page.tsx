@@ -85,7 +85,11 @@ export default function ReportsPage() {
         method: 'GET',
         credentials: 'include'
       });
+      
       if (!res.ok) throw new Error('Failed to fetch reports');
+      if (res.status == 401) {
+        router.refresh(); // 
+      }
       const data = await res.json();
       setReports(data);
     } catch (err) {
@@ -120,6 +124,7 @@ export default function ReportsPage() {
         method: 'POST',
         credentials: 'include'
       });
+      
       if (!res.ok) throw new Error('Failed to delete profile');
       toast.success('Profile Deleted');
       setReports((prev) => prev.filter((r) => r.id !== reportId));
@@ -181,7 +186,7 @@ export default function ReportsPage() {
               </Link>
               <div className="flex gap-4 pt-2">
                 <Button
-                  variant="destructive"
+                  variant="secondary"
                   size="sm"
                   onClick={() => deleteReport(report.id)}
                   disabled={actionLoading === report.id}
@@ -201,7 +206,7 @@ export default function ReportsPage() {
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
-                      variant="secondary"
+                      variant="destructive"
                       size="sm"
                       disabled={actionLoading === report.id}
                     >

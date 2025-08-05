@@ -1,7 +1,7 @@
 'use client';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
+import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -32,9 +32,11 @@ export default function ProfileDetails({ profile }: { profile: Profile }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="rounded-3xl overflow-hidden shadow-2xl border border-purple-800 bg-black/20 backdrop-blur-sm">
             <Swiper
-          modules={[Navigation, Pagination]}
+          modules={[Navigation, Pagination, Autoplay]}
           navigation
-          pagination={{ clickable: true }}
+          autoplay={{delay: 2000}}
+          
+          pagination={{ clickable: true, type: 'fraction' }}
           className="w-full aspect-[4/3] !h-full"
         >
           {images.map((url, i) => (

@@ -16,6 +16,7 @@ module.exports = {
             background: 'oklch(var(--background) / <alpha-value>)',
             foreground: 'oklch(var(--foreground) / <alpha-value>)',
             primary: 'oklch(var(--primary) / <alpha-value>)',
+            
             // Add more if desired...
         },
         borderRadius: {
@@ -30,9 +31,29 @@ module.exports = {
             '50%': { backgroundPosition: '100% 50%' },
             '100%': { backgroundPosition: '0% 50%' },
             },
+            slideInFromLeft: {
+              '0%': { transform: 'translateX(-100%)' },
+              '100%': { transform: 'translateX(0)' },
+            },
+            slideInFromRight: {
+              '0%': { transform: 'translateX(100%)'},
+              '100%': { transform: 'translateX(0)' },
+            },
+            slideInFromTop: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(0)' },
+            },
+            slideInFromBottom: {
+              '0%': { transform: 'translateY(100%)' },
+              '100%': { transform: 'translateY(0)' },
+            }
         },
         animation: {
             gradientShift: 'gradientShift 8s ease infinite',
+            slideInLeft: 'slideInFromLeft 1s ease-out forwards',
+            slideInRight: 'slideInFromRight 1s ease-out forwards',
+            slideInTop: 'slideInFromTop 1s ease-out forwards',
+            slideInBottom: 'slideInFromBottom 1s ease-out forwards',
         },
         },
     },
