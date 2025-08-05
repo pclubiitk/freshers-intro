@@ -132,7 +132,7 @@ const filteredProfiles = allProfiles.filter((profile) => {
   return (
     <div className="min-h-screen bg-background text-foreground py-8 transition-colors duration-300">
       <div className="flex flex-col md:flex-row items-start mx-4 md:items-center justify-between mb-10">
-        <h1 className="text-5xl font-extrabold text-center md:text-left mb-4 md:mb-0 bg-gradient-to-r from-pink-500 via-blue-500 to-cyan-400 bg-clip-text text-transparent animate-gradient">
+        <h1 className="text-5xl font-extrabold text-center md:text-left mb-4 md:mb-0 text-black dark:text-white bg-clip-text animate-gradient">
           Browse Profiles
         </h1>
 
@@ -223,10 +223,10 @@ const filteredProfiles = allProfiles.filter((profile) => {
         </div>
       </div>
 
-       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-4">
+       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
         {filteredProfiles.map((profile,index=profile.user.id) => (
            <div key={index} className="no-underline">
-            <ProfileCard profile={profile} />
+            <ProfileCard profile={profile} number_of_interests={5}/>
           </div>
         ))}
       </div>

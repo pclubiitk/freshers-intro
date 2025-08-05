@@ -22,7 +22,7 @@ export default function ProfileSection({ role, profiles }: { role: string; profi
 
   return (
     <section className="py-6 px-4">
-      <h2 className="text-2xl font-semibold mb-4 text-center capitalize text-neutral-900 dark:text-white">
+      <h2 className="text-3xl font-semibold mb-4 text-center capitalize text-neutral-900 dark:text-white">
         Meet the {title}
       </h2>
       <Swiper
@@ -40,7 +40,7 @@ export default function ProfileSection({ role, profiles }: { role: string; profi
       >
         {profiles.map((profile) => (
           <SwiperSlide key={profile.user.id}>
-            <ProfileCard profile={profile} />
+            <ProfileCard profile={profile} number_of_interests={2}/>
           </SwiperSlide>
         ))}
       </Swiper>

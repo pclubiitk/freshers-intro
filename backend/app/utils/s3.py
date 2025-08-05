@@ -1,4 +1,5 @@
 import os
+from typing import List
 import boto3
 from botocore.exceptions import ClientError
 
@@ -59,3 +60,5 @@ def delete_s3_object(key: str):
     except ClientError as e:
         print(f"[S3 Delete Error] Failed to delete {key}: {e}")
 
+def delete_multiple_objects(keys: List[str]):
+    s3_client.delete_objects(Bucket=S3_BUCKET, Delete={"Objects": [{"Key": key} for key in keys]})

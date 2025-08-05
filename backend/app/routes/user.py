@@ -85,7 +85,7 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(form: schemas.UserLogin, response: Response, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == form.email).first()
+    user = db.query(models.User).filter(models.User.email == form.email.lower()).first()
     if not user or not auth.verify_password(form.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
@@ -119,7 +119,7 @@ class ResendRequest(BaseModel):
 
 @router.post("/resend-verification")
 async def resend_mail (payload: ResendRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == payload.email).first()
+    user = db.query(User).filter(User.email == payload.email.lower()).first()
     
     if not user:
         raise HTTPException(status_code=404, detail="User not found.")
@@ -198,7 +198,7 @@ async def forgot_password (req: schemas.ForgotPasswordRequest, background_tasks:
             raise HTTPException(status_code=400, detail="Failed reCAPTCHA validation")
 
     
-    user = db.query(User).filter(User.email == req.email).first()
+    user = db.query(User).filter(User.email == req.email.lower()).first()
     if not user:
         return {"message": "If an account exists, a reset link has been sent."}
 

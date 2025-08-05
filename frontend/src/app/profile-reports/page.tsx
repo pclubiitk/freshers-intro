@@ -8,6 +8,17 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 type User = {
   id: string;
@@ -142,7 +153,7 @@ export default function ReportsPage() {
     <div className="mx-auto py-10 px-4 bg-white dark:bg-black text-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-8 text-center">Profile Reports</h1>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {reports.map((report) => (
           <Card key={report.id} className="shadow-md hover:shadow-lg transition">
             <CardContent className="p-5 space-y-4">
@@ -187,26 +198,47 @@ export default function ReportsPage() {
                     </>
                   )}
                 </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() =>
-                    suspendProfile(report.reported_profile.id, report.id)
-                  }
-                  disabled={actionLoading === report.id}
-                >
-                  {actionLoading === report.id ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      Suspending
-                    </>
-                  ) : (
-                    <>
-                      <Ban className="w-4 h-4 mr-2" />
-                      Suspend Profile
-                    </>
-                  )}
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={actionLoading === report.id}
+                    >
+                      {actionLoading === report.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          Suspending
+                        </>
+                      ) : (
+                        <>
+                          <Ban className="w-4 h-4 mr-2" />
+                          Suspend Profile
+                        </>
+                      )}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will delete the profile assodicated with{" "}
+                        <strong>{report.reported_profile.user.email}</strong>.<br/> The user can create a new profile afterwards.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() =>
+                          suspendProfile(report.reported_profile.id, report.id)
+                        }
+                      >
+                        Yes
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
               </div>
             </CardContent>
           </Card>
